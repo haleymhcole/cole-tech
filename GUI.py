@@ -9,6 +9,7 @@ import threading
 from GTF import get_GTF
 from GUI_screenshot import take_window_screenshot
 from plot import open_figure_popup
+from visual_design_elements import colors, fonts
 
 # -------------------------------------------------------
 # Helper function: fetch Kp index
@@ -42,64 +43,79 @@ def fetch_kp_index(date_time):
 # -------------------------------------------------------
 class GTFApp:
     def __init__(self, root):
+        # Create a Style object
+        s = ttk.Style()
+        
+        # Configure the "TLabelframe" style to set the background color
+        # You can choose any valid color name or hex code
+        s.configure("TLabelframe", background=colors.panel_bg) 
+        s.configure("TransparentLabel.TLabel", background=colors.panel_bg, foreground=colors.h1, font=fonts.h2)
+        s.configure("TButton", bg=colors.btn_bg,  fg=colors.btn_text, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
+        #s.map("TButton", background=[('active', 'pink')]) # Optional: change color on hover
+
         self.root = root
         self.root.title("Geomagnetic Transmission Function (GTF) Viewer")
         self.root.geometry("650x550")
+        
+        # Set the background color of the window
+        # Can use color names (e.g., "blue", "lightpink")
+        # or hexadecimal color codes (e.g., "#FF0000" for red)
+        root.configure(bg=colors.window_bg) 
 
         # --- Input Frame ---
         frame = ttk.LabelFrame(root, text="Input Parameters", padding=10)
         frame.pack(padx=10, pady=10, fill="x")
 
         # Latitude
-        ttk.Label(frame, text="Latitude (°):").grid(row=0, column=0, sticky="e")
+        ttk.Label(frame, text="Latitude (°):", style="TransparentLabel.TLabel").grid(row=0, column=0, sticky="e")
         self.lat_entry = ttk.Entry(frame)
         self.lat_entry.insert(0, "40.0")
         self.lat_entry.grid(row=0, column=1)
 
         # Longitude
-        ttk.Label(frame, text="Longitude (°):").grid(row=1, column=0, sticky="e")
+        ttk.Label(frame, text="Longitude (°):", style="TransparentLabel.TLabel").grid(row=1, column=0, sticky="e")
         self.lon_entry = ttk.Entry(frame)
         self.lon_entry.insert(0, "-105.3")
         self.lon_entry.grid(row=1, column=1)
 
         # Altitude
-        ttk.Label(frame, text="Altitude (km):").grid(row=2, column=0, sticky="e")
+        ttk.Label(frame, text="Altitude (km):", style="TransparentLabel.TLabel").grid(row=2, column=0, sticky="e")
         self.alt_entry = ttk.Entry(frame)
         self.alt_entry.insert(0, "1.6")
         self.alt_entry.grid(row=2, column=1)
 
         # Date/time
-        ttk.Label(frame, text="Date (YYYY-MM-DD):").grid(row=3, column=0, sticky="e")
+        ttk.Label(frame, text="Date (YYYY-MM-DD):", style="TransparentLabel.TLabel").grid(row=3, column=0, sticky="e")
         self.date_entry = ttk.Entry(frame)
         self.date_entry.insert(0, datetime.utcnow().strftime("%Y-%m-%d"))
         self.date_entry.grid(row=3, column=1)
 
-        ttk.Label(frame, text="Time (HH:MM, UTC):").grid(row=4, column=0, sticky="e")
+        ttk.Label(frame, text="Time (HH:MM, UTC):", style="TransparentLabel.TLabel").grid(row=4, column=0, sticky="e")
         self.time_entry = ttk.Entry(frame)
         self.time_entry.insert(0, datetime.utcnow().strftime("%H:%M"))
         self.time_entry.grid(row=4, column=1)
 
         # Optional manual Kp input
-        ttk.Label(frame, text="Manual Kp (optional):").grid(row=5, column=0, sticky="e")
+        ttk.Label(frame, text="Manual Kp (optional):", style="TransparentLabel.TLabel").grid(row=5, column=0, sticky="e")
         self.kp_entry = ttk.Entry(frame)
         self.kp_entry.grid(row=5, column=1)
 
         # Compute button
-        compute_btn = ttk.Button(frame, text="Compute GTF", command=self.compute_gtf)
+        compute_btn = ttk.Button(frame, text="Compute GTF", command=self.compute_gtf, style="TButton")
         compute_btn.grid(row=6, column=0, columnspan=2, pady=10)
 
         # --- Output Frame ---
         self.output_frame = ttk.LabelFrame(root, text="Results", padding=10)
         self.output_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
-        self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF")
+        self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel")
         self.output_label.pack()
 
         # Kp & environment results
-        self.kp_label = ttk.Label(self.output_frame, text="Kp Index: --", font=("Helvetica", 10))
+        self.kp_label = ttk.Label(self.output_frame, text="Kp Index: --", font=("Helvetica", 10), style="TransparentLabel.TLabel")
         self.kp_label.pack(pady=2)
         self.severity_label = ttk.Label(self.output_frame, text="Environment Level: --",
-                                        font=("Helvetica", 12, "bold"))
+                                        font=("Helvetica", 12, "bold"), style="TransparentLabel.TLabel")
         self.severity_label.pack(pady=(0, 10))
 
         # # --- Plot area ---
