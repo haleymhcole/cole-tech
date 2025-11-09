@@ -1,3 +1,77 @@
+"""
+Geomagnetic Transmission Function (GTF) Toolkit
+------------------------------------------------
+This module computes the Geomagnetic Transmission Function (GTF) for a given
+location and time, using the International Geomagnetic Reference Field (IGRF)
+and a smooth step function approximation of particle transmission.
+
+Overview
+---------
+The GTF describes the probability that a charged particle of a given rigidity
+(momentum per unit charge, in gigavolts, GV) can penetrate Earth's magnetic
+field and reach a specified location. It depends primarily on the geomagnetic
+latitude and local cutoff rigidity (Rc).
+
+Calculation Steps
+-----------------
+1. Geomagnetic Field Estimation
+   - Uses the ppigrf.igrf() function to compute magnetic field components
+     (Be, Bn, Bu) in nanotesla (nT) from the IGRF model.
+
+2. Geomagnetic Latitude and Cutoff Rigidity
+   - Geomagnetic latitude λ is estimated from magnetic field components:
+       λ = arctan(Bz / sqrt(Bx² + By²))
+   - The vertical cutoff rigidity Rc is estimated via the Stoermer approximation:
+       Rc = 14.5 * cos⁴(λ)
+     where Rc is in GV.
+
+3. Transmission Function T(R)
+   - Models the probability that a particle of rigidity R penetrates the
+     geomagnetic field:
+       T(R) = 0.5 * [1 + tanh((R - Rc) / ΔR)]
+     where ΔR ≈ 0.3 GV defines the transition width.
+   - R spans 0–20 GV, with T(R) ranging from 0 (fully shielded)
+     to 1 (fully transmitted).
+
+4. Environment Severity (optional)
+   - The GUI retrieves the planetary Kp index (0–9) from the GFZ Helmholtz API.
+   - Combined with Rc, the environment is classified as:
+       Nominal   : Kp < 4 and Rc ≥ 8
+       Moderate  : 4 ≤ Kp < 6 or 5 ≤ Rc < 8
+       Severe    : Kp ≥ 6 or Rc < 5
+
+Inputs
+-------
+lat : float
+    Geographic latitude in degrees.
+lon : float
+    Geographic longitude in degrees.
+alt : float
+    Altitude above mean sea level in kilometers.
+date : datetime or float
+    UTC datetime or decimal year.
+(optional) Kp : float
+    Planetary index (0–9) for activity classification.
+
+Outputs
+--------
+dict
+    Dictionary with keys:
+        "R"           → rigidity array [GV]
+        "T"           → transmission function (0–1)
+        "Rc"          → cutoff rigidity [GV]
+        "geomag_lat"  → geomagnetic latitude [deg]
+
+References
+-----------
+- Smart, D. F. & Shea, M. A. (2005). A Review of Geomagnetic Cutoff Rigidities
+  for Earth-Orbiting Spacecraft. *Advances in Space Research*, 36(10), 2012–2020.
+- International Association of Geomagnetism and Aeronomy (IAGA):
+  International Geomagnetic Reference Field (IGRF).
+- GFZ Potsdam Kp Index API: https://kp.gfz.de/
+"""
+
+
 import numpy as np
 import ppigrf
 from datetime import datetime
