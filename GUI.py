@@ -9,7 +9,8 @@ import threading
 from GTF import get_GTF
 from GUI_screenshot import take_window_screenshot
 from plot import open_figure_popup
-from visual_design_elements import colors, fonts
+from visual_design_elements import colors, fonts, images
+from PIL import Image, ImageTk
 
 # -------------------------------------------------------
 # Helper function: fetch Kp index
@@ -132,7 +133,19 @@ class GTFApp:
         self.loading_label = ttk.Label(self.output_frame, text="", foreground="gray")
         self.loading_label.pack(pady=(5, 0))
 
+
+        logo = Image.open(images.logo)
+        logo.thumbnail((100,100), Image.Resampling.LANCZOS)
+        tk_image = ImageTk.PhotoImage(logo)
+        image_label = ttk.Label(root, image=tk_image)
+        image_label.pack()
+        # Place the image in the lower-right corner
+        # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
+        # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
+        image_label.place(rely=1.0, relx=1.0, anchor=tk.SE)
         
+        # Keep a reference to the image to prevent garbage collection
+        image_label.image = tk_image 
         
     # ---------------------------------------------------
     # Main compute routine
