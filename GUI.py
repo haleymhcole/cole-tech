@@ -5,7 +5,9 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import requests
+import threading
 from GTF import get_GTF
+from GUI_screenshot import take_window_screenshot
 
 
 # -------------------------------------------------------
@@ -101,10 +103,21 @@ class GTFApp:
         self.severity_label.pack(pady=(0, 10))
 
         # --- Plot area ---
-        self.fig, self.ax = plt.subplots(figsize=(5, 3))
+        self.fig, self.ax = plt.subplots(figsize=(8,6), dpi=300)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.output_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.config(width=600, height=400)
+        canvas_widget.pack()
 
+
+        # Loading label for async updates
+        self.loading_label = ttk.Label(self.output_frame, text="", foreground="gray")
+        self.loading_label.pack(pady=(5, 0))
+
+        
+        
     # ---------------------------------------------------
     # Main compute routine
     # ---------------------------------------------------
@@ -118,29 +131,29 @@ class GTFApp:
             dt_str = f"{date_str} {time_str}"
             date = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
 
-            # Compute GTF
+            # Compute GTF (fast local)
             result = get_GTF(lat, lon, alt, date)
             Rc = result["Rc"][0]
             lam = result["geomag_lat"][0]
 
-            # Fetch Kp index automatically
-            kp_val = fetch_kp_index(date)
-            if kp_val is None:
-                # fallback to manual
-                try:
-                    kp_val = float(self.kp_entry.get())
-                except:
-                    kp_val = 0.0
+            # # Fetch Kp index automatically
+            # kp_val = fetch_kp_index(date)
+            # if kp_val is None:
+            #     # fallback to manualFGTF
+            #     try:
+            #         kp_val = float(self.kp_entry.get())
+            #     except:
+            #         kp_val = 0.0
 
-            # Analyze environment
-            severity = self.analyze_environment(Rc, kp_val)
+            # # Analyze environment
+            # severity = self.analyze_environment(Rc, kp_val)
 
             # Update labels
             self.output_label.config(
                 text=f"Geomagnetic latitude: {lam:.2f}°    Cutoff Rigidity: {Rc:.2f} GV")
-            self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
-            color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
-            self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
+            # self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
+            # color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
+            # self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
 
             # Plot
             self.ax.clear()
@@ -152,9 +165,38 @@ class GTFApp:
             self.ax.legend()
             self.ax.grid(True)
             self.canvas.draw()
+            
+            # Show loading message and launch Kp fetch in background
+            self.loading_label.config(text="Fetching Kp index from GFZ...")
+            thread = threading.Thread(target=self.fetch_and_update_kp, args=(date, Rc))
+            thread.daemon = True
+            thread.start()
 
         except Exception as e:
             messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
+            
+    # ---------------------------------------------------
+    # Threaded Kp fetch + environment analysis
+    # ---------------------------------------------------
+    def fetch_and_update_kp(self, date, Rc):
+        kp_val = fetch_kp_index(date)
+        if kp_val is None:
+            try:
+                kp_val = float(self.kp_entry.get())
+            except Exception:
+                kp_val = 0.0
+
+        severity = self.analyze_environment(Rc, kp_val)
+
+        # Schedule safe GUI update from main thread
+        self.root.after(0, lambda: self.update_kp_display(kp_val, severity))
+
+    def update_kp_display(self, kp_val, severity):
+        """Update GUI with Kp and severity after thread completes."""
+        color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
+        self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
+        self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
+        self.loading_label.config(text="")  # clear "fetching" text
 
     # ---------------------------------------------------
     # Environment analysis
