@@ -25,6 +25,10 @@ class colors:
     body = black 
     btn_bg = black # dark_plum
     btn_text = white
+    plot_text = dark_plum
+    plot_axes = violet
+    plot_grid = light_gray
+    plot_spines = dark_plum
         
 class fonts:
     h1 = ("Arial", 24, 'bold')
@@ -34,4 +38,5 @@ class fonts:
     
 class images:
     logo = os.path.join("Images", "logo.png") # Replace with your image file path
+    
     

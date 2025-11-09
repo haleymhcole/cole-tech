@@ -49,13 +49,14 @@ class GTFApp:
         
         # Configure the "TLabelframe" style to set the background color
         # You can choose any valid color name or hex code
-        s.configure("TLabelframe", background=colors.panel_bg) 
+        s.configure("TLabelframe", background=colors.panel_bg, foreground=colors.h1, font=fonts.h1) 
         s.configure("TransparentLabel.TLabel", background=colors.panel_bg, foreground=colors.h1, font=fonts.h2)
-        s.configure("TButton", bg=colors.btn_bg,  fg=colors.btn_text, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
+        s.configure("TButton", background=colors.btn_bg,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
         #s.map("TButton", background=[('active', 'pink')]) # Optional: change color on hover
+        s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1) 
 
         self.root = root
-        self.root.title("Geomagnetic Transmission Function (GTF) Viewer")
+        self.root.title("Geomagnetic Transmission Function (GTF) Calculator")
         self.root.geometry("650x550")
         
         # Set the background color of the window
@@ -64,8 +65,8 @@ class GTFApp:
         root.configure(bg=colors.window_bg) 
 
         # --- Input Frame ---
-        frame = ttk.LabelFrame(root, text="Input Parameters", padding=10)
-        frame.pack(padx=10, pady=10, fill="x")
+        frame = ttk.LabelFrame(root, text="Input Parameters", padding=10, style='h1.TLabelframe')
+        frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Latitude
         ttk.Label(frame, text="Latitude (°):", style="TransparentLabel.TLabel").grid(row=0, column=0, sticky="e")
@@ -106,7 +107,7 @@ class GTFApp:
         compute_btn.grid(row=6, column=0, columnspan=2, pady=10)
 
         # --- Output Frame ---
-        self.output_frame = ttk.LabelFrame(root, text="Results", padding=10)
+        self.output_frame = ttk.LabelFrame(root, text="Analysis", padding=10)
         self.output_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel")

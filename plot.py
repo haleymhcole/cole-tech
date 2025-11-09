@@ -9,8 +9,9 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import seaborn as sns
+from visual_design_elements import colors, fonts, images
 
-sns.set_style('darkgrid')
+# sns.set_style('darkgrid')
 
 def open_figure_popup(root, result, Rc):
     # Get parent window's position and size
@@ -29,17 +30,33 @@ def open_figure_popup(root, result, Rc):
     
     # Set the geometry of the pop-up window
     popup.geometry(f"600x500+{popup_x}+{popup_y}")
+    
+    # Update rcParams to set the default text color
+    plt.rcParams.update({
+        'text.color': colors.plot_text,
+        'axes.labelcolor': colors.plot_text,  # For axis labels
+        'xtick.color': colors.plot_axes,      # For x-axis tick labels
+        'ytick.color': colors.plot_axes       # For y-axis tick labels
+    })
 
     # Create a Matplotlib figure and axes
     fig, ax = plt.subplots(figsize=(6,5))
     ax.clear()
     ax.plot(result["R"], result["T"], label="Transmission Function")
     ax.axvline(Rc, color='r', linestyle='--', label=f"Rc = {Rc:.2f} GV")
-    ax.set_title("Geomagnetic Transmission Function")
-    ax.set_xlabel("Rigidity [GV]")
-    ax.set_ylabel("Transmission T(R)")
+    ax.set_title("Geomagnetic Transmission Function", fontweight='bold')
+    ax.set_xlabel("Rigidity [GV]", fontweight='bold')
+    ax.set_ylabel("Transmission T(R)", fontweight='bold')
     ax.legend()
-    ax.grid(True)
+    ax.grid(True, ls='dashed', color=colors.plot_grid)
+    
+    # Access and modify all spines
+    # You can iterate through the ax.spines dictionary to access each spine
+    for spine in ['left', 'right', 'top', 'bottom']:
+        ax.spines[spine].set_color(colors.plot_spines)
+        ax.spines[spine].set_linewidth(1)
+        # ax.spines['top'].set_visible(False) # Hide top spine
+    
     plt.tight_layout(pad=3)
 
     # Embed the Matplotlib figure into the Tkinter window
@@ -51,47 +68,5 @@ def open_figure_popup(root, result, Rc):
     # Optional: Add a close button
     close_button = ttk.Button(popup, text="Close", command=popup.destroy)
     close_button.pack(pady=10)
-    
-    
-    # # Show loading message and launch Kp fetch in background
-    # self.loading_label.config(text="Fetching Kp index from GFZ...")
-    # thread = threading.Thread(target=self.fetch_and_update_kp, args=(date, Rc))
-    # thread.daemon = True
-    # thread.start()
-    
-
-def open_popup_to_side():
-    # Get parent window's position and size
-    parent_x = root.winfo_x()
-    parent_y = root.winfo_y()
-    parent_width = root.winfo_width()
-
-    # Calculate pop-up window's position (to the right of the parent)
-    popup_x = parent_x + parent_width
-    popup_y = parent_y # Align top edges
-
-    # Create the Toplevel window
-    popup_window = tk.Toplevel(root)
-    popup_window.title("Pop-up Window")
-
-    # Set the geometry of the pop-up window
-    # Example: 200x150 pixels, positioned at popup_x, popup_y
-    popup_window.geometry(f"200x150+{popup_x}+{popup_y}")
-
-    # Add content to the pop-up window
-    tk.Label(popup_window, text="This is a pop-up!").pack(pady=20)
-    tk.Button(popup_window, text="Close", command=popup_window.destroy).pack()
-
-# # Create the main window
-# root = tk.Tk()
-# root.title("Main Window")
-# root.geometry("400x300") # Initial size for the main window
-
-# # Button to open the pop-up
-# open_button = tk.Button(root, text="Open Pop-up", command=open_popup_to_side)
-# open_button.pack(pady=50)
-
-# root.mainloop()
-    
     
     
