@@ -25,7 +25,7 @@ def open_figure_popup(root, result, Rc):
     
     # Create the Toplevel window for the pop-up
     popup = tk.Toplevel()
-    popup.title("Figure Pop-up")
+    popup.title("GTF Plotting Window")
     #popup.geometry("600x500")
     
     # Set the geometry of the pop-up window
