@@ -37,6 +37,7 @@ class fonts:
     
     
 class images:
-    logo = os.path.join("Images", "logo.png") # Replace with your image file path
+    logo = os.path.join("Images", "logo.png") 
+    logo_dark = os.path.join("Images", "logo_dark.png") 
     
     

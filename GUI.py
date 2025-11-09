@@ -44,6 +44,32 @@ def fetch_kp_index(date_time):
 # -------------------------------------------------------
 class GTFApp:
     def __init__(self, root):
+# =============================================================================
+#       Window
+# =============================================================================
+        self.root = root
+        self.root.title("Geomagnetic Transmission Function (GTF) Calculator")
+        self.root.geometry("650x550")
+        
+        # Set the background color of the window
+        # Can use color names (e.g., "blue", "lightpink")
+        # or hexadecimal color codes (e.g., "#FF0000" for red)
+        #root.configure(bg=colors.window_bg) 
+        root.columnconfigure(0, weight=1)
+        root.columnconfigure(1, weight=2)
+        root.rowconfigure(0, weight=1)
+        
+        # --- Create the Left (Purple) Panel ---
+        left_panel = tk.Frame(root, bg=colors.violet) 
+        left_panel.grid(row=0, column=0, sticky="nsew") 
+
+        # --- Create the Right (White) Panel ---
+        right_panel = tk.Frame(root, bg=colors.white)
+        right_panel.grid(row=0, column=1, sticky="nsew")
+        
+# =============================================================================
+#         Styles
+# =============================================================================
         # Create a Style object
         s = ttk.Style()
         
@@ -54,18 +80,37 @@ class GTFApp:
         s.configure("TButton", background=colors.btn_bg,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
         #s.map("TButton", background=[('active', 'pink')]) # Optional: change color on hover
         s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1) 
-
-        self.root = root
-        self.root.title("Geomagnetic Transmission Function (GTF) Calculator")
-        self.root.geometry("650x550")
         
-        # Set the background color of the window
-        # Can use color names (e.g., "blue", "lightpink")
-        # or hexadecimal color codes (e.g., "#FF0000" for red)
-        root.configure(bg=colors.window_bg) 
+# =============================================================================
+#         Menu
+# =============================================================================
+        self.logo = Image.open(images.logo_dark)
+        self.logo.thumbnail((150,150), Image.Resampling.LANCZOS)
+        self.tk_image = ImageTk.PhotoImage(self.logo)
+        self.image_label = ttk.Label(left_panel, image=self.tk_image, borderwidth=0)
+        self.image_label.pack()
+        # Place the image in the lower-right corner
+        # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
+        # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
+        self.image_label.place(rely=0.05, relx=0.1, anchor=tk.NW)
+        
+        # Keep a reference to the image to prevent garbage collection
+        self.image_label.image = self.tk_image 
 
+
+        # --- Button on the Left Panel ---
+        # We use a ttk.Button for modern styling and the 'command' functionality
+        calculate_button = ttk.Button(left_panel, 
+                                      text="GTF",
+                                      style="TButton") #, command=on_calculate_click
+        # Pack the button into the left frame
+        calculate_button.pack(pady=100, padx=25, anchor="w") # pady for vertical space, anchor="w" for left alignment
+
+# =============================================================================
+#       Panels
+# =============================================================================
         # --- Input Frame ---
-        frame = ttk.LabelFrame(root, text="Input Parameters", padding=10, style='h1.TLabelframe')
+        frame = ttk.LabelFrame(right_panel, text="Input Parameters", padding=10, style='h1.TLabelframe')
         frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Latitude
@@ -107,7 +152,7 @@ class GTFApp:
         compute_btn.grid(row=6, column=0, columnspan=2, pady=10)
 
         # --- Output Frame ---
-        self.output_frame = ttk.LabelFrame(root, text="Analysis", padding=10)
+        self.output_frame = ttk.LabelFrame(right_panel, text="Analysis", padding=10)
         self.output_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel")
@@ -135,18 +180,18 @@ class GTFApp:
         self.loading_label.pack(pady=(5, 0))
 
 
-        logo = Image.open(images.logo)
-        logo.thumbnail((100,100), Image.Resampling.LANCZOS)
-        tk_image = ImageTk.PhotoImage(logo)
-        image_label = ttk.Label(root, image=tk_image)
-        image_label.pack()
-        # Place the image in the lower-right corner
-        # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
-        # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
-        image_label.place(rely=1.0, relx=1.0, anchor=tk.SE)
+        # logo = Image.open(images.logo)
+        # logo.thumbnail((100,100), Image.Resampling.LANCZOS)
+        # tk_image = ImageTk.PhotoImage(logo)
+        # image_label = ttk.Label(right_panel, image=tk_image)
+        # image_label.pack()
+        # # Place the image in the lower-right corner
+        # # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
+        # # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
+        # image_label.place(rely=1.0, relx=1.0, anchor=tk.SE)
         
-        # Keep a reference to the image to prevent garbage collection
-        image_label.image = tk_image 
+        # # Keep a reference to the image to prevent garbage collection
+        # image_label.image = tk_image 
         
     # ---------------------------------------------------
     # Main compute routine
