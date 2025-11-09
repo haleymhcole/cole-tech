@@ -17,6 +17,9 @@ PRESETS = {
     "LEO 400 km": {"Cd": 2.2, "A": 1.0, "m": 100.0, "rho": 4e-12, "v_rel": 7700.0, "alt": 400},
     "LEO 800 km": {"Cd": 2.2, "A": 1.0, "m": 100.0, "rho": 3e-13, "v_rel": 7500.0},
     "GEO 35786 km": {"Cd": 2.2, "A": 20.0, "m": 2000.0, "rho": 1e-17, "v_rel": 3070.0},
+    "ISS Approx.": {"alt":400},
+    "Hubble Space Telescope": {"alt":540},
+    "Single Location": {"Cd": 0.0, "A": 0.0, "m": 0.0, "rho": 0, "v_rel":0, "lat": 40, "lon": -105.3, "alt":1.6}
 }
 
 # -------------------------------------------------------
@@ -71,7 +74,7 @@ class GTFApp:
         self.left_panel.grid(row=0, column=0, sticky="nsew") 
 
         # --- Create the Right (White) Panel ---
-        self.right_panel = tk.Frame(root, bg=colors.white)
+        self.right_panel = tk.Frame(root, bg=colors.lightest_purple)
         self.right_panel.grid(row=0, column=1, sticky="nsew")
         
 # =============================================================================
@@ -87,7 +90,9 @@ class GTFApp:
         self.s.configure("Menu.TButton", background=colors.violet,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
         self.s.configure("TButton", background=colors.panel_bg,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
         #s.map("TButton", background=[('active', 'pink')]) # Optional: change color on hover
-        self.s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1) 
+        self.s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1)
+        self.s.configure("Header1.TLabel", background=colors.panel_bg, foreground=colors.h1, font=fonts.h1)
+        
         
 # =============================================================================
 #         Menu
@@ -131,68 +136,85 @@ class GTFApp:
 #       User Inputs Panel
 # =============================================================================
         # --- Input Frame ---
-        frame = ttk.LabelFrame(self.right_panel, text="Input Parameters", padding=10, style='h1.TLabelframe')
+        frame = ttk.Frame(self.right_panel, padding=10, style="TLabelframe") # , 
         frame.pack(padx=10, pady=10, fill="both", expand=True)
         
-        ttk.Label(frame, text="Select Preset Orbit:", style="TransparentLabel.TLabel").grid(row=0, column=0, sticky="e") # .pack(side="left", padx=(0, 10))
+        nrow = 0
+        
+        ttk.Label(frame, text="Input Parameters", style="Header1.TLabel").grid(row=nrow, column=0, sticky="e")
+        # self.header_params = ttk.Label(frame, text="Input Parameters", style="h1.TLabelframe").grid(row=0, column=0, sticky="e")
+        # self.header_params.pack(pady=10)
+        nrow+=1
+        
+        ttk.Label(frame, text="Select Preset Orbit:", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e") # .pack(side="left", padx=(0, 10))
         self.preset_var = tk.StringVar(value="Custom")
         self.preset_menu = ttk.Combobox(frame, textvariable=self.preset_var, values=list(PRESETS.keys()), state="readonly")
         # self.preset_menu.pack(side="left", fill="x", expand=True)
         self.preset_menu.bind("<<ComboboxSelected>>", self.apply_preset)
-        self.preset_menu.grid(row=0, column=0)
+        self.preset_menu.grid(row=nrow, column=1)
+        nrow+=1
 
         # Latitude
-        ttk.Label(frame, text="Latitude (°):", style="TransparentLabel.TLabel").grid(row=1, column=0, sticky="e")
+        ttk.Label(frame, text="Latitude (°):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.lat_entry = ttk.Entry(frame)
         self.lat_entry.insert(0, "40.0")
-        self.lat_entry.grid(row=1, column=1)
+        self.lat_entry.grid(row=nrow, column=1)
+        nrow+=1
 
         # Longitude
-        ttk.Label(frame, text="Longitude (°):", style="TransparentLabel.TLabel").grid(row=2, column=0, sticky="e")
+        ttk.Label(frame, text="Longitude (°):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.lon_entry = ttk.Entry(frame)
         self.lon_entry.insert(0, "-105.3")
-        self.lon_entry.grid(row=2, column=1)
+        self.lon_entry.grid(row=nrow, column=1)
+        nrow+=1
 
         # Altitude
-        ttk.Label(frame, text="Altitude (km):", style="TransparentLabel.TLabel").grid(row=3, column=0, sticky="e")
+        ttk.Label(frame, text="Altitude (km):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.alt_entry = ttk.Entry(frame)
         self.alt_entry.insert(0, "1.6")
-        self.alt_entry.grid(row=3, column=1)
+        self.alt_entry.grid(row=nrow, column=1)
+        nrow+=1
 
         # Date/time
-        ttk.Label(frame, text="Date (YYYY-MM-DD):", style="TransparentLabel.TLabel").grid(row=4, column=0, sticky="e")
+        ttk.Label(frame, text="Date (YYYY-MM-DD):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.date_entry = ttk.Entry(frame)
         self.date_entry.insert(0, datetime.utcnow().strftime("%Y-%m-%d"))
-        self.date_entry.grid(row=4, column=1)
+        self.date_entry.grid(row=nrow, column=1)
+        nrow+=1
 
-        ttk.Label(frame, text="Time (HH:MM, UTC):", style="TransparentLabel.TLabel").grid(row=5, column=0, sticky="e")
+        ttk.Label(frame, text="Time (HH:MM, UTC):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.time_entry = ttk.Entry(frame)
         self.time_entry.insert(0, datetime.utcnow().strftime("%H:%M"))
-        self.time_entry.grid(row=5, column=1)
+        self.time_entry.grid(row=nrow, column=1)
+        nrow+=1
 
         # Optional manual Kp input
-        ttk.Label(frame, text="Manual Kp (optional):", style="TransparentLabel.TLabel").grid(row=6, column=0, sticky="e")
+        ttk.Label(frame, text="Manual Kp (optional):", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e")
         self.kp_entry = ttk.Entry(frame)
-        self.kp_entry.grid(row=6, column=1)
+        self.kp_entry.grid(row=nrow, column=1)
+        nrow+=1
 
         # Compute button
         compute_btn = ttk.Button(frame, text="Compute GTF", command=self.compute_gtf, style="TButton")
-        compute_btn.grid(row=7, column=0, columnspan=2, pady=10)
+        compute_btn.grid(row=nrow, column=0, columnspan=2, pady=10)
 
 # =============================================================================
 #       Analysis Panel
 # =============================================================================
-        self.output_frame = ttk.LabelFrame(self.right_panel, text="Analysis", padding=10)
+        self.output_frame = ttk.Frame(self.right_panel, padding=10, style="TLabelframe")
         self.output_frame.pack(padx=10, pady=10, fill="both", expand=True)
-
-        self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel")
+        
+        self.output_header = ttk.Label(self.output_frame, text="Analysis", style="Header1.TLabel", justify='left') # .grid(row=0, column=0, sticky="e") #  justify='left') # 
+        self.output_header.pack(padx=(0,300))
+        
+        self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel") # .grid(row=1, column=0, sticky="e")
         self.output_label.pack()
 
         # Kp & environment results
-        self.kp_label = ttk.Label(self.output_frame, text="Kp Index: --", font=("Helvetica", 10), style="TransparentLabel.TLabel")
+        self.kp_label = ttk.Label(self.output_frame, text="Kp Index: --", font=("Helvetica", 10), style="TransparentLabel.TLabel") #.grid(row=2, column=0, sticky="e")
         self.kp_label.pack(pady=2)
         self.severity_label = ttk.Label(self.output_frame, text="Environment Level: --",
-                                        font=("Helvetica", 12, "bold"), style="TransparentLabel.TLabel")
+                                        font=("Helvetica", 12, "bold"), style="TransparentLabel.TLabel") # .grid(row=3, column=0, sticky="e")
         self.severity_label.pack(pady=(0, 10))
 
         # # --- Plot area ---
@@ -206,7 +228,7 @@ class GTFApp:
 
 
         # Loading label for async updates
-        self.loading_label = ttk.Label(self.output_frame, text="", foreground="gray")
+        self.loading_label = ttk.Label(self.output_frame, text="", foreground="gray") #.grid(row=4, column=0, sticky="e")
         self.loading_label.pack(pady=(5, 0))
 
 

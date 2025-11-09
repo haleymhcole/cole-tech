@@ -19,7 +19,7 @@ class colors:
     lightest_purple = "#faf0ff"
     
     window_bg = white
-    panel_bg = lightest_purple 
+    panel_bg = white 
     h1 = dark_plum
     h2 = light_plum
     body = black 
@@ -31,7 +31,7 @@ class colors:
     plot_spines = dark_plum
         
 class fonts:
-    h1 = ("Arial", 24, 'bold')
+    h1 = ("Arial", 16, 'bold')
     h2 = ("Arial", 10)
     btn = ("Arial", 12, 'bold')
     
