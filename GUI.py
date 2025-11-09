@@ -8,7 +8,7 @@ import requests
 import threading
 from GTF import get_GTF
 from GUI_screenshot import take_window_screenshot
-
+from plot import open_figure_popup
 
 # -------------------------------------------------------
 # Helper function: fetch Kp index
@@ -102,14 +102,14 @@ class GTFApp:
                                         font=("Helvetica", 12, "bold"))
         self.severity_label.pack(pady=(0, 10))
 
-        # --- Plot area ---
-        self.fig, self.ax = plt.subplots(figsize=(8,6), dpi=300)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.output_frame)
-        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+        # # --- Plot area ---
+        # self.fig, self.ax = plt.subplots(figsize=(8,6), dpi=300)
+        # self.canvas = FigureCanvasTkAgg(self.fig, master=self.output_frame)
+        # self.canvas.get_tk_widget().pack(fill="both", expand=True)
         
-        canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.config(width=600, height=400)
-        canvas_widget.pack()
+        # canvas_widget = self.canvas.get_tk_widget()
+        # canvas_widget.config(width=600, height=400)
+        # canvas_widget.pack()
 
 
         # Loading label for async updates
@@ -147,6 +147,7 @@ class GTFApp:
 
             # # Analyze environment
             # severity = self.analyze_environment(Rc, kp_val)
+            
 
             # Update labels
             self.output_label.config(
@@ -155,22 +156,25 @@ class GTFApp:
             # color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
             # self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
 
-            # Plot
-            self.ax.clear()
-            self.ax.plot(result["R"], result["T"], label="Transmission Function")
-            self.ax.axvline(Rc, color='r', linestyle='--', label=f"Rc = {Rc:.2f} GV")
-            self.ax.set_xlabel("Rigidity [GV]")
-            self.ax.set_ylabel("Transmission T(R)")
-            self.ax.set_title("Geomagnetic Transmission Function")
-            self.ax.legend()
-            self.ax.grid(True)
-            self.canvas.draw()
+            # # Plot
+            # self.ax.clear()
+            # self.ax.plot(result["R"], result["T"], label="Transmission Function")
+            # self.ax.axvline(Rc, color='r', linestyle='--', label=f"Rc = {Rc:.2f} GV")
+            # self.ax.set_xlabel("Rigidity [GV]")
+            # self.ax.set_ylabel("Transmission T(R)")
+            # self.ax.set_title("Geomagnetic Transmission Function")
+            # self.ax.legend()
+            # self.ax.grid(True)
+            # self.canvas.draw()
             
             # Show loading message and launch Kp fetch in background
             self.loading_label.config(text="Fetching Kp index from GFZ...")
             thread = threading.Thread(target=self.fetch_and_update_kp, args=(date, Rc))
             thread.daemon = True
             thread.start()
+            
+            
+            open_figure_popup(result, Rc)
 
         except Exception as e:
             messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
