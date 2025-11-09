@@ -1,188 +1,85 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov  9 05:18:00 2025
-
-@author: haleycole
-"""
-
 import numpy as np
-from scipy.integrate import solve_ivp
+import ppigrf
 from datetime import datetime
-import ppigrf # or PyGeopack for better accuracy in complex environments
-import pandas as pd
-
-# Function to calculate magnetic field (using IGRF as example)
-def get_B_field(lat, lon, alt, decimal_yr):
-    """
-    Compute magnetic field vector (in Tesla) at given geodetic location and date
-    using the IGRF model.
-
-    Parameters:
-        lat (float): Geodetic latitude (deg)
-        lon (float): Geodetic longitude (deg)
-        alt (float): Altitude above mean sea level (km)
-        date (float): Decimal year (e.g., 2025.85)
-
-    Returns:
-        tuple: (Bx, By, Bz) components in Earth-Centered Earth-Fixed (ECEF) Cartesian frame, in Tesla
-    """
-
-    # ppigrf returns East, North, Up components in nT
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, alt, decimal_yr)
-
-    # Convert nT -> Tesla
-    Be_T = Be * 1e-9
-    Bn_T = Bn * 1e-9
-    Bu_T = Bu * 1e-9
-
-    # Convert to local North-East-Down (NED) for consistency with many orbital dynamics tools
-    Bn_ned = Bn_T
-    Be_ned = Be_T
-    Bd_ned = -Bu_T  # Up -> Down
-
-    # Convert from local NED to Earth-Centered Earth-Fixed (ECEF) coordinates
-    lat_rad = np.radians(lat)
-    lon_rad = np.radians(lon)
-
-    # Transformation from NED to ECEF
-    Bx = -np.sin(lat_rad) * np.cos(lon_rad) * Bn_ned \
-         - np.sin(lon_rad) * Be_ned \
-         - np.cos(lat_rad) * np.cos(lon_rad) * Bd_ned
-
-    By = -np.sin(lat_rad) * np.sin(lon_rad) * Bn_ned \
-         + np.cos(lon_rad) * Be_ned \
-         - np.cos(lat_rad) * np.sin(lon_rad) * Bd_ned
-
-    Bz = np.cos(lat_rad) * Bn_ned - np.sin(lat_rad) * Bd_ned
-
-    return Bx, By, Bz
-
-
-# def decimal_year(dt):
-#     year_start = datetime(dt.year, 1, 1)
-#     year_end = datetime(dt.year + 1, 1, 1)
-#     return dt.year + ((dt - year_start).total_seconds() /
-#                       (year_end - year_start).total_seconds())
-
 
 def to_decimal_year(dt):
-    """Convert datetime or pandas Timestamp to decimal year float."""
-    if not isinstance(dt, datetime):
-        dt = pd.to_datetime(dt)  # if user passed string or Timestamp
-
+    """Convert datetime to decimal year."""
     year_start = datetime(dt.year, 1, 1)
     year_end = datetime(dt.year + 1, 1, 1)
     return dt.year + ((dt - year_start).total_seconds() /
                       (year_end - year_start).total_seconds())
 
-
-
-import numpy as np
-import ppigrf  # pip install ppigrf
-
-def get_B_field(lat, lon, alt, date):
+def geomagnetic_latitude(lat, lon, alt_km, date_decimal):
     """
-    Compute the Earth's magnetic field vector using IGRF.
+    Approximate geomagnetic latitude using IGRF field direction.
+    """
+    Be, Bn, Bu = ppigrf.igrf(lon, lat, alt_km, date_decimal)
+    # inclination angle (positive down)
+    inc = np.degrees(np.arctan2(Bu, np.sqrt(Be**2 + Bn**2)))
+    # Approximate geomagnetic latitude (λm ≈ dip latitude)
+    lam_m = np.degrees(np.arctan(0.5 * np.tan(np.radians(inc))))
+    return lam_m
 
-    Parameters:
-        lat (float): Geodetic latitude [deg]
-        lon (float): Geodetic longitude [deg]
-        alt (float): Altitude above mean sea level [km]
-        date (float): Decimal year (e.g., 2025.85)
+def compute_cutoff_rigidity(lat, lon, alt_km, date):
+    """
+    Compute vertical cutoff rigidity Rc [GV] using a simplified Störmer model.
+    """
+    # if not isinstance(date, (float, int)):
+    #     date = to_decimal_year(date)
+    lam_m = geomagnetic_latitude(lat, lon, alt_km, date)
+    Rc = 14.9 * (np.cos(np.radians(lam_m)) ** 4)
+    return Rc, lam_m
+
+def geomagnetic_transmission(R, Rc, k=1.0):
+    """
+    Smooth transmission function T(R) for rigidity R [GV].
+    """
+    return 1.0 / (1.0 + np.exp(-k * (R - Rc)))
+
+def get_GTF(lat, lon, alt_km, date, R_vals=None):
+    """
+    Compute the Geomagnetic Transmission Function (GTF) for given location/time.
 
     Returns:
-        dict: {
-            "Bx": float,  # ECEF X-component [T]
-            "By": float,  # ECEF Y-component [T]
-            "Bz": float,  # ECEF Z-component [T]
-            "B_total": float,  # total field magnitude [T]
-            "declination": float,  # magnetic declination [deg, east of north]
-            "inclination": float   # magnetic inclination [deg, positive down]
-        }
+        dict with keys:
+        - "R": rigidity array [GV]
+        - "T": transmission fraction [0–1]
+        - "Rc": cutoff rigidity [GV]
+        - "geomag_lat": geomagnetic latitude [deg]
     """
-    # --- Compute local magnetic field components (East, North, Up) in nT ---
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, alt, date)
+    if R_vals is None:
+        R_vals = np.linspace(0, 20, 200)  # Rigidity range [GV]
 
-    # --- Convert nT -> Tesla ---
-    Be_T = Be * 1e-9
-    Bn_T = Bn * 1e-9
-    Bu_T = Bu * 1e-9
-
-    # --- Derived scalar quantities (in local ENU frame) ---
-    B_total = np.sqrt(Be_T**2 + Bn_T**2 + Bu_T**2)
-
-    # Magnetic declination: eastward angle from geographic north
-    declination = np.degrees(np.arctan2(Be_T, Bn_T))
-
-    # Magnetic inclination: downward angle from horizontal (positive down)
-    inclination = np.degrees(np.arctan2(Bu_T, np.sqrt(Be_T**2 + Bn_T**2)))
-
-    # --- Convert to Earth-Centered Earth-Fixed (ECEF) Cartesian components ---
-    lat_rad = np.radians(lat)
-    lon_rad = np.radians(lon)
-
-    # Convert from local ENU (Be, Bn, Bu) to ECEF (Bx, By, Bz)
-    Bx = -np.sin(lat_rad)*np.cos(lon_rad)*Bn_T - np.sin(lon_rad)*Be_T + np.cos(lat_rad)*np.cos(lon_rad)*Bu_T
-    By = -np.sin(lat_rad)*np.sin(lon_rad)*Bn_T + np.cos(lon_rad)*Be_T + np.cos(lat_rad)*np.sin(lon_rad)*Bu_T
-    Bz = np.cos(lat_rad)*Bn_T + np.sin(lat_rad)*Bu_T
+    Rc, lam_m = compute_cutoff_rigidity(lat, lon, alt_km, date)
+    T_vals = geomagnetic_transmission(R_vals, Rc, k=1.2)
 
     return {
-        "Bx": Bx,
-        "By": By,
-        "Bz": Bz,
-        "B_total": B_total,
-        "declination": declination,
-        "inclination": inclination
+        "R": R_vals,
+        "T": T_vals,
+        "Rc": Rc,
+        "geomag_lat": lam_m
     }
 
-
-# Function to solve the equation of motion for a charged particle (Lorentz force)
-def particle_trajectory(t, state, charge, mass, date):
-    # state = [x, y, z, vx, vy, vz]
-    x, y, z, vx, vy, vz = state
-    lat, lon, alt = ... # convert cartesian to geodetic for B field model input
-    decimal_yr = to_decimal_year(date)
-    Bx, By, Bz = get_B_field(lat, lon, alt, decimal_yr)
-    
-    # Lorentz force F = q(E + v x B) - assuming E=0 for this simplified model
-    # a = F/m = (q/m) * (v x B)
-    # dv/dt = (charge/mass) * np.cross([vx, vy, vz], [Bx, By, Bz])
-    ax, ay, az = ... # calculate components
-    
-    return [vx, vy, vz, ax, ay, az]
-
-# Function to determine cutoff
-def check_trajectory(initial_state, charge, mass, date):
-    # Integrate the trajectory over time
-    # Check if particle hits atmosphere (alt < 0 km) or escapes magnetosphere
-    # This requires defining boundary conditions and a solver loop
-    pass
-
-# Calculating the transmission function
-def get_transmission_function(location, date, rigidities_to_test):
-    transmission_function = {}
-    for rigidity in rigidities_to_test:
-        allowed_count = 0
-        total_trajectories = 100 # sample over different directions/pitch angles
-        for trajectory_params in range(total_trajectories):
-            initial_state = ... # define initial state based on rigidity and direction
-            if check_trajectory(initial_state, ...):
-                allowed_count += 1
-        transmission_function[rigidity] = allowed_count / total_trajectories
-    return transmission_function
-
-
-
+# ---------------------------
+# Example usage
+# ---------------------------
 if __name__ == "__main__":
-    # Example: Boulder, CO, altitude 1.6 km, November 2025
-    lat, lon, alt = 40.0, -105.3, 1.6
-    date = datetime(2025, 11, 1)
-    
-    #decimal = to_decimal_year(date)
-    # print("Decimal Year:", decimal)
-    # print("\n")
-    B = get_B_field(lat, lon, alt, date)
-    print(B)
-    
-    
+    lat, lon, alt = 40.0, -105.3, 1.6  # Boulder, CO
+    date = datetime(2025, 11, 9)
+
+    gtf = get_GTF(lat, lon, alt, date)
+    print("GTF:", list(gtf))
+    print("geomag_lat:", gtf['geomag_lat'])
+    print(f"Geomagnetic latitude: {gtf['geomag_lat'][0]:.2f}°")
+    print(f"Cutoff rigidity: {gtf['Rc'][0]:.2f} GV")
+
+    # Optional: plot
+    import matplotlib.pyplot as plt
+    plt.plot(gtf["R"], gtf["T"])
+    plt.axvline(gtf["Rc"], color='r', linestyle='--', label=f"Rc = {gtf['Rc'][0]:.2f} GV")
+    plt.xlabel("Rigidity [GV]")
+    plt.ylabel("Transmission Fraction T(R)")
+    plt.title("Geomagnetic Transmission Function")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
