@@ -55,31 +55,32 @@ class GTFApp:
         # Can use color names (e.g., "blue", "lightpink")
         # or hexadecimal color codes (e.g., "#FF0000" for red)
         #root.configure(bg=colors.window_bg) 
-        root.columnconfigure(0, weight=1)
-        root.columnconfigure(1, weight=2)
-        root.rowconfigure(0, weight=1)
+        self.root.columnconfigure(0, weight=1)
+        self.root.columnconfigure(1, weight=2)
+        self.root.rowconfigure(0, weight=1)
         
         # --- Create the Left (Purple) Panel ---
-        left_panel = tk.Frame(root, bg=colors.violet) 
-        left_panel.grid(row=0, column=0, sticky="nsew") 
+        self.left_panel = tk.Frame(root, bg=colors.violet) 
+        self.left_panel.grid(row=0, column=0, sticky="nsew") 
 
         # --- Create the Right (White) Panel ---
-        right_panel = tk.Frame(root, bg=colors.white)
-        right_panel.grid(row=0, column=1, sticky="nsew")
+        self.right_panel = tk.Frame(root, bg=colors.white)
+        self.right_panel.grid(row=0, column=1, sticky="nsew")
         
 # =============================================================================
 #         Styles
 # =============================================================================
         # Create a Style object
-        s = ttk.Style()
+        self.s = ttk.Style()
         
         # Configure the "TLabelframe" style to set the background color
         # You can choose any valid color name or hex code
-        s.configure("TLabelframe", background=colors.panel_bg, foreground=colors.h1, font=fonts.h1) 
-        s.configure("TransparentLabel.TLabel", background=colors.panel_bg, foreground=colors.h1, font=fonts.h2)
-        s.configure("TButton", background=colors.btn_bg,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
+        self.s.configure("TLabelframe", background=colors.panel_bg, foreground=colors.h1, font=fonts.h1) 
+        self.s.configure("TransparentLabel.TLabel", background=colors.panel_bg, foreground=colors.h1, font=fonts.h2)
+        self.s.configure("Menu.TButton", background=colors.violet,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
+        self.s.configure("TButton", background=colors.panel_bg,  foreground=colors.dark_plum, font=fonts.btn) #, activebackground="lightgreen", activeforeground="black")
         #s.map("TButton", background=[('active', 'pink')]) # Optional: change color on hover
-        s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1) 
+        self.s.configure("h1.TLabelframe", bg='pink') # , bg=colors.panel_bg, fg=colors.h1, font=fonts.h1) 
         
 # =============================================================================
 #         Menu
@@ -87,7 +88,7 @@ class GTFApp:
         self.logo = Image.open(images.logo_dark)
         self.logo.thumbnail((150,150), Image.Resampling.LANCZOS)
         self.tk_image = ImageTk.PhotoImage(self.logo)
-        self.image_label = ttk.Label(left_panel, image=self.tk_image, borderwidth=0)
+        self.image_label = ttk.Label(self.left_panel, image=self.tk_image, borderwidth=0)
         self.image_label.pack()
         # Place the image in the lower-right corner
         # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
@@ -100,17 +101,30 @@ class GTFApp:
 
         # --- Button on the Left Panel ---
         # We use a ttk.Button for modern styling and the 'command' functionality
-        calculate_button = ttk.Button(left_panel, 
+        gtf_btn = ttk.Button(self.left_panel, 
                                       text="GTF",
-                                      style="TButton") #, command=on_calculate_click
+                                      style="Menu.TButton") #, command=on_calculate_click
         # Pack the button into the left frame
-        calculate_button.pack(pady=100, padx=25, anchor="w") # pady for vertical space, anchor="w" for left alignment
-
+        gtf_btn.pack(pady=(110,10), padx=25, anchor="w") # pady for vertical space, anchor="w" for left alignment
+        
+        settings_btn = ttk.Button(self.left_panel, text="Settings", style="Menu.TButton") 
+        settings_btn.pack(pady=10, padx=25, anchor="w") 
+        
+        feedback_btn = ttk.Button(self.left_panel, text="Send Feedback", style="Menu.TButton") 
+        feedback_btn.pack(pady=10, padx=25, anchor="w") 
+        
+        upgrade_btn = ttk.Button(self.left_panel, text="Upgrade to Premium", style="Menu.TButton") 
+        upgrade_btn.pack(pady=10, padx=25, anchor="w") 
+        
+        help_btn = ttk.Button(self.left_panel, text="Help", style="Menu.TButton") 
+        help_btn.pack(pady=10, padx=25, anchor="w") 
+        
+        
 # =============================================================================
 #       Panels
 # =============================================================================
         # --- Input Frame ---
-        frame = ttk.LabelFrame(right_panel, text="Input Parameters", padding=10, style='h1.TLabelframe')
+        frame = ttk.LabelFrame(self.right_panel, text="Input Parameters", padding=10, style='h1.TLabelframe')
         frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Latitude
@@ -152,7 +166,7 @@ class GTFApp:
         compute_btn.grid(row=6, column=0, columnspan=2, pady=10)
 
         # --- Output Frame ---
-        self.output_frame = ttk.LabelFrame(right_panel, text="Analysis", padding=10)
+        self.output_frame = ttk.LabelFrame(self.right_panel, text="Analysis", padding=10)
         self.output_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF", style="TransparentLabel.TLabel")
