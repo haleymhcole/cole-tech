@@ -174,7 +174,7 @@ class GTFApp:
             thread.start()
             
             
-            open_figure_popup(result, Rc)
+            open_figure_popup(root, result, Rc)
 
         except Exception as e:
             messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
