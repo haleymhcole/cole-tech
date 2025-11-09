@@ -11,6 +11,8 @@ from GUI_screenshot import take_window_screenshot
 from plot import open_figure_popup
 from visual_design_elements import colors, fonts, images
 from PIL import Image, ImageTk
+import os
+import pandas as pd
 
 PRESETS = {
     "Custom": {"Cd": "", "A": "", "m": "", "rho": "", "v_rel": ""},
@@ -19,7 +21,8 @@ PRESETS = {
     "GEO 35786 km": {"Cd": 2.2, "A": 20.0, "m": 2000.0, "rho": 1e-17, "v_rel": 3070.0},
     "ISS Approx.": {"alt":400},
     "Hubble Space Telescope": {"alt":540},
-    "Single Location": {"Cd": 0.0, "A": 0.0, "m": 0.0, "rho": 0, "v_rel":0, "lat": 40, "lon": -105.3, "alt":1.6}
+    "Single Location": {"Cd": 0.0, "A": 0.0, "m": 0.0, "rho": 0, "v_rel":0, "lat": 40, "lon": -105.3, "alt":1.6},
+    "Example Trajectory":{}
 }
 
 # -------------------------------------------------------
@@ -76,6 +79,15 @@ class GTFApp:
         # --- Create the Right (White) Panel ---
         self.right_panel = tk.Frame(root, bg=colors.lightest_purple)
         self.right_panel.grid(row=0, column=1, sticky="nsew")
+        
+        # Change favicon.
+        # Set the window icon using the PhotoImage object
+        # The first argument (True/False) determines if the icon applies to child windows
+        # icon_image = tk.PhotoImage(file=os.path.join("Images",'icon.png'))
+        # self.root.iconphoto(True, icon_image) 
+        ico = Image.open(os.path.join("Images",'favicon.png'))
+        photo = ImageTk.PhotoImage(ico)
+        root.wm_iconphoto(False, photo)
         
 # =============================================================================
 #         Styles
@@ -135,6 +147,9 @@ class GTFApp:
 # =============================================================================
 #       User Inputs Panel
 # =============================================================================
+        self.singleloc = True
+
+
         # --- Input Frame ---
         frame = ttk.Frame(self.right_panel, padding=10, style="TLabelframe") # , 
         frame.pack(padx=10, pady=10, fill="both", expand=True)
@@ -147,7 +162,7 @@ class GTFApp:
         nrow+=1
         
         ttk.Label(frame, text="Select Preset Orbit:", style="TransparentLabel.TLabel").grid(row=nrow, column=0, sticky="e") # .pack(side="left", padx=(0, 10))
-        self.preset_var = tk.StringVar(value="Custom")
+        self.preset_var = tk.StringVar(value="Single Location")
         self.preset_menu = ttk.Combobox(frame, textvariable=self.preset_var, values=list(PRESETS.keys()), state="readonly")
         # self.preset_menu.pack(side="left", fill="x", expand=True)
         self.preset_menu.bind("<<ComboboxSelected>>", self.apply_preset)
@@ -249,62 +264,76 @@ class GTFApp:
     # Main compute routine
     # ---------------------------------------------------
     def compute_gtf(self):
-        try:
-            lat = float(self.lat_entry.get())
-            lon = float(self.lon_entry.get())
-            alt = float(self.alt_entry.get())
-            date_str = self.date_entry.get().strip()
-            time_str = self.time_entry.get().strip()
-            dt_str = f"{date_str} {time_str}"
-            date = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
-
-            # Compute GTF (fast local)
-            result = get_GTF(lat, lon, alt, date)
-            Rc = result["Rc"][0]
-            lam = result["geomag_lat"][0]
-
-            # # Fetch Kp index automatically
-            # kp_val = fetch_kp_index(date)
-            # if kp_val is None:
-            #     # fallback to manualFGTF
-            #     try:
-            #         kp_val = float(self.kp_entry.get())
-            #     except:
-            #         kp_val = 0.0
-
-            # # Analyze environment
-            # severity = self.analyze_environment(Rc, kp_val)
+        if self.singleloc:
+            try:
+                lat = float(self.lat_entry.get())
+                lon = float(self.lon_entry.get())
+                alt = float(self.alt_entry.get())
+                date_str = self.date_entry.get().strip()
+                time_str = self.time_entry.get().strip()
+                dt_str = f"{date_str} {time_str}"
+                date = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
+    
+                # Compute GTF (fast local)
+                result = get_GTF(lat, lon, alt, date)
+                Rc = result["Rc"][0]
+                lam = result["geomag_lat"][0]
+    
+                # # Fetch Kp index automatically
+                # kp_val = fetch_kp_index(date)
+                # if kp_val is None:
+                #     # fallback to manualFGTF
+                #     try:
+                #         kp_val = float(self.kp_entry.get())
+                #     except:
+                #         kp_val = 0.0
+    
+                # # Analyze environment
+                # severity = self.analyze_environment(Rc, kp_val)
+                
+    
+                # Update labels
+                self.output_label.config(
+                    text=f"Geomagnetic latitude: {lam:.2f}°    Cutoff Rigidity: {Rc:.2f} GV")
+                # self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
+                # color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
+                # self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
+    
+                # # Plot
+                # self.ax.clear()
+                # self.ax.plot(result["R"], result["T"], label="Transmission Function")
+                # self.ax.axvline(Rc, color='r', linestyle='--', label=f"Rc = {Rc:.2f} GV")
+                # self.ax.set_xlabel("Rigidity [GV]")
+                # self.ax.set_ylabel("Transmission T(R)")
+                # self.ax.set_title("Geomagnetic Transmission Function")
+                # self.ax.legend()
+                # self.ax.grid(True)
+                # self.canvas.draw()
+                
+                # Show loading message and launch Kp fetch in background
+                self.loading_label.config(text="Fetching Kp index from GFZ...")
+                thread = threading.Thread(target=self.fetch_and_update_kp, args=(date, Rc))
+                thread.daemon = True
+                thread.start()
+                
+                
+                open_figure_popup(root, result, Rc, False)
+    
+            except Exception as e:
+                messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
+        else:
+            # Loop over calculation for whole trajectory.
+            epoch = datetime.datetime(2025, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+            latitudes = self.traj['Lat'] 
+            longitudes = self.traj['Lon'] 
+            altitudes = self.traj['Alt'] 
             
-
-            # Update labels
-            self.output_label.config(
-                text=f"Geomagnetic latitude: {lam:.2f}°    Cutoff Rigidity: {Rc:.2f} GV")
-            # self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
-            # color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
-            # self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
-
-            # # Plot
-            # self.ax.clear()
-            # self.ax.plot(result["R"], result["T"], label="Transmission Function")
-            # self.ax.axvline(Rc, color='r', linestyle='--', label=f"Rc = {Rc:.2f} GV")
-            # self.ax.set_xlabel("Rigidity [GV]")
-            # self.ax.set_ylabel("Transmission T(R)")
-            # self.ax.set_title("Geomagnetic Transmission Function")
-            # self.ax.legend()
-            # self.ax.grid(True)
-            # self.canvas.draw()
+            results = []
+            for (lat, lon, alt) in zip(latitudes, longitudes, altitudes):
+                result = get_GTF(lat, lon, alt, epoch)
+                results.append(result)
             
-            # Show loading message and launch Kp fetch in background
-            self.loading_label.config(text="Fetching Kp index from GFZ...")
-            thread = threading.Thread(target=self.fetch_and_update_kp, args=(date, Rc))
-            thread.daemon = True
-            thread.start()
-            
-            
-            open_figure_popup(root, result, Rc)
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
+            open_figure_popup(root, results, Rc, True)
             
     # ---------------------------------------------------
     # Threaded Kp fetch + environment analysis
@@ -333,10 +362,16 @@ class GTFApp:
 #     User selections
 # =============================================================================
     def apply_preset(self, event=None):
-        print("YAY!")
         preset = self.preset_var.get()
         params = PRESETS[preset]
-        print(params)
+        
+        if preset == "Example Trajectory":
+            print("Loading example trajectory...")
+            file = os.path.join("Data", "example_trajectory.csv")
+            self.traj = pd.read_csv(file)
+            self.singleloc = False
+        else:
+            self.singleloc = True
         
         # for entry, key in zip(entries, ["Cd", "A", "m", "rho", "v_rel"]):
         #     entry.delete(0, tk.END)

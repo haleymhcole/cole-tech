@@ -13,7 +13,7 @@ from visual_design_elements import colors, fonts, images
 
 # sns.set_style('darkgrid')
 
-def open_figure_popup(root, result, Rc):
+def open_figure_popup(root, result, Rc, make_gif):
     # Get parent window's position and size
     parent_x = root.winfo_x()
     parent_y = root.winfo_y()
@@ -39,6 +39,9 @@ def open_figure_popup(root, result, Rc):
         'ytick.color': colors.plot_axes       # For y-axis tick labels
     })
 
+    if make_gif:
+        frames = []
+    
     # Create a Matplotlib figure and axes
     fig, ax = plt.subplots(figsize=(6,5))
     ax.clear()
@@ -59,11 +62,17 @@ def open_figure_popup(root, result, Rc):
     
     plt.tight_layout(pad=3)
 
+    if make_gif:
+        frames.append(filename)
+        
+    plt.close(fig)
+
     # Embed the Matplotlib figure into the Tkinter window
     canvas = FigureCanvasTkAgg(fig, master=popup)
     canvas_widget = canvas.get_tk_widget()
     canvas_widget.pack(fill=tk.BOTH, expand=True)
     canvas.draw()
+    
 
     # Optional: Add a close button
     close_button = ttk.Button(popup, text="Close", command=popup.destroy)
