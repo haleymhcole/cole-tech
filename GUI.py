@@ -1,24 +1,48 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov  9 05:39:16 2025
-
-@author: haleycole
-"""
-
 # GUI.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import requests
 from GTF import get_GTF
 
+
+# -------------------------------------------------------
+# Helper function: fetch Kp index
+# -------------------------------------------------------
+def fetch_kp_index(date_time):
+    """
+    Fetch the 3-hour planetary Kp index for the given datetime (UTC).
+    Returns float Kp or None if failed.
+    Uses GFZ Helmholtz Centre API.
+    """
+    ts = date_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    url = f"https://kp.gfz.de/app/json/?start={ts}&end={ts}&index=Kp"
+
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+
+        if "data" in data and len(data["data"]) > 0:
+            val = float(data["data"][0]["value"])
+            return val
+        else:
+            return None
+    except Exception as e:
+        print("Error fetching Kp index:", e)
+        return None
+
+
+# -------------------------------------------------------
+# GUI Application Class
+# -------------------------------------------------------
 class GTFApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Geomagnetic Transmission Function Viewer")
-        self.root.geometry("600x600")
+        self.root.title("Geomagnetic Transmission Function (GTF) Viewer")
+        self.root.geometry("650x550")
 
         # --- Input Frame ---
         frame = ttk.LabelFrame(root, text="Input Parameters", padding=10)
@@ -45,12 +69,22 @@ class GTFApp:
         # Date/time
         ttk.Label(frame, text="Date (YYYY-MM-DD):").grid(row=3, column=0, sticky="e")
         self.date_entry = ttk.Entry(frame)
-        self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.date_entry.insert(0, datetime.utcnow().strftime("%Y-%m-%d"))
         self.date_entry.grid(row=3, column=1)
+
+        ttk.Label(frame, text="Time (HH:MM, UTC):").grid(row=4, column=0, sticky="e")
+        self.time_entry = ttk.Entry(frame)
+        self.time_entry.insert(0, datetime.utcnow().strftime("%H:%M"))
+        self.time_entry.grid(row=4, column=1)
+
+        # Optional manual Kp input
+        ttk.Label(frame, text="Manual Kp (optional):").grid(row=5, column=0, sticky="e")
+        self.kp_entry = ttk.Entry(frame)
+        self.kp_entry.grid(row=5, column=1)
 
         # Compute button
         compute_btn = ttk.Button(frame, text="Compute GTF", command=self.compute_gtf)
-        compute_btn.grid(row=4, column=0, columnspan=2, pady=10)
+        compute_btn.grid(row=6, column=0, columnspan=2, pady=10)
 
         # --- Output Frame ---
         self.output_frame = ttk.LabelFrame(root, text="Results", padding=10)
@@ -59,26 +93,54 @@ class GTFApp:
         self.output_label = ttk.Label(self.output_frame, text="Enter values and press Compute GTF")
         self.output_label.pack()
 
+        # Kp & environment results
+        self.kp_label = ttk.Label(self.output_frame, text="Kp Index: --", font=("Helvetica", 10))
+        self.kp_label.pack(pady=2)
+        self.severity_label = ttk.Label(self.output_frame, text="Environment Level: --",
+                                        font=("Helvetica", 12, "bold"))
+        self.severity_label.pack(pady=(0, 10))
+
         # --- Plot area ---
         self.fig, self.ax = plt.subplots(figsize=(5, 3))
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.output_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
+    # ---------------------------------------------------
+    # Main compute routine
+    # ---------------------------------------------------
     def compute_gtf(self):
         try:
             lat = float(self.lat_entry.get())
             lon = float(self.lon_entry.get())
             alt = float(self.alt_entry.get())
-            date_str = self.date_entry.get()
-            date = datetime.strptime(date_str, "%Y-%m-%d")
+            date_str = self.date_entry.get().strip()
+            time_str = self.time_entry.get().strip()
+            dt_str = f"{date_str} {time_str}"
+            date = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
 
+            # Compute GTF
             result = get_GTF(lat, lon, alt, date)
-
             Rc = result["Rc"][0]
             lam = result["geomag_lat"][0]
 
-            # Update label
-            self.output_label.config(text=f"Geomagnetic lat: {lam:.2f}°,  Rc: {Rc:.2f} GV")
+            # Fetch Kp index automatically
+            kp_val = fetch_kp_index(date)
+            if kp_val is None:
+                # fallback to manual
+                try:
+                    kp_val = float(self.kp_entry.get())
+                except:
+                    kp_val = 0.0
+
+            # Analyze environment
+            severity = self.analyze_environment(Rc, kp_val)
+
+            # Update labels
+            self.output_label.config(
+                text=f"Geomagnetic latitude: {lam:.2f}°    Cutoff Rigidity: {Rc:.2f} GV")
+            self.kp_label.config(text=f"Kp Index (3-hr): {kp_val:.1f}")
+            color = "green" if severity == "Nominal" else ("orange" if severity == "Moderate" else "red")
+            self.severity_label.config(text=f"Environment Level: {severity}", foreground=color)
 
             # Plot
             self.ax.clear()
@@ -94,7 +156,24 @@ class GTFApp:
         except Exception as e:
             messagebox.showerror("Error", f"Could not compute GTF:\n{e}")
 
-# --- Run the GUI ---
+    # ---------------------------------------------------
+    # Environment analysis
+    # ---------------------------------------------------
+    def analyze_environment(self, Rc, Kp):
+        """
+        Classify environment as Nominal / Moderate / Severe.
+        """
+        if Kp >= 6 or Rc < 5.0:
+            return "Severe"
+        elif Kp >= 4 or Rc < 8.0:
+            return "Moderate"
+        else:
+            return "Nominal"
+
+
+# -------------------------------------------------------
+# Run the app
+# -------------------------------------------------------
 if __name__ == "__main__":
     root = tk.Tk()
     app = GTFApp(root)
