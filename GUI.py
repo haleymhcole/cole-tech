@@ -8,7 +8,7 @@ import requests
 import threading
 from GTF import get_GTF
 from GUI_screenshot import take_window_screenshot
-from plot import open_figure_popup
+from plot import open_figure_popup, plot_kp, plot_gtf
 from visual_design_elements import colors, fonts, images
 from PIL import Image, ImageTk
 import os
@@ -131,6 +131,20 @@ class GTFApp:
                                       style="Menu.TButton") #, command=on_calculate_click
         # Pack the button into the left frame
         gtf_btn.pack(pady=(110,10), padx=25, anchor="w") # pady for vertical space, anchor="w" for left alignment
+        
+        gtf_btn = ttk.Button(self.left_panel, 
+                                      text="Kp Index: Past Week",
+                                      style="Menu.TButton", 
+                                      command=self.compute_kp_1wk)
+        # Pack the button into the left frame
+        gtf_btn.pack(pady=10, padx=25, anchor="w")
+        
+        gtf_btn = ttk.Button(self.left_panel, 
+                                      text="Kp Index: Past Month",
+                                      style="Menu.TButton", 
+                                      command=self.compute_kp_1mo)
+        # Pack the button into the left frame
+        gtf_btn.pack(pady=10, padx=25, anchor="w")
         
         settings_btn = ttk.Button(self.left_panel, text="Settings", style="Menu.TButton") 
         settings_btn.pack(pady=10, padx=25, anchor="w") 
@@ -267,6 +281,13 @@ class GTFApp:
     # ---------------------------------------------------
     # Main compute routine
     # ---------------------------------------------------
+    def compute_kp_1wk(self):
+        plot_kp(self.root, "Week")
+        
+    def compute_kp_1mo(self):
+        plot_kp(self.root, "Month")
+    
+    
     def compute_gtf(self):
         if self.singleloc:
             try:

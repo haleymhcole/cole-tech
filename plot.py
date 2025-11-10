@@ -10,10 +10,15 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import seaborn as sns
 from visual_design_elements import colors, fonts, images
+import spaceweather as sw
+from tkinter import messagebox
+import matplotlib.dates as mdates
+import pandas as pd
+from datetime import datetime, timedelta
 
 # sns.set_style('darkgrid')
 
-def open_figure_popup(root, result, Rc, make_gif):
+def open_figure_popup(root):
     # Get parent window's position and size
     parent_x = root.winfo_x()
     parent_y = root.winfo_y()
@@ -38,6 +43,83 @@ def open_figure_popup(root, result, Rc, make_gif):
         'xtick.color': colors.plot_axes,      # For x-axis tick labels
         'ytick.color': colors.plot_axes       # For y-axis tick labels
     })
+    
+    return popup
+
+def finalize_popup(fig, popup):
+    # Embed the Matplotlib figure into the Tkinter window
+    canvas = FigureCanvasTkAgg(fig, master=popup)
+    canvas_widget = canvas.get_tk_widget()
+    canvas_widget.pack(fill=tk.BOTH, expand=True)
+    canvas.draw()
+    
+    # Optional: Add a close button
+    close_button = ttk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack(pady=10)
+    return popup
+
+
+def plot_kp(root, time_frame):
+    popup = open_figure_popup(root)
+    
+    # --- Load and slice the data ---
+    sw_data = sw.celestrak.sw_daily(update=True)
+    
+    # Ensure datetime index
+    sw_data.index = pd.to_datetime(sw_data.index)
+    
+    current_datetime = datetime.utcnow()
+    one_week_ago = current_datetime - timedelta(weeks=1)
+    one_month_ago = current_datetime - timedelta(days=30)
+    
+    if time_frame == "Week":
+        ago = one_week_ago
+    elif time_frame == "Month":
+        ago = one_month_ago
+    else:
+        messagebox.showerror("Error", "Invalid time frame selected for Kp trend.")
+    
+    # Filter data for the last week
+    data_range = sw_data.loc[ago:current_datetime]
+    
+    # Extract datetime and Kp
+    times = data_range.index
+    kp_values = data_range["Kp0"].astype(float)  # make sure it's numeric
+    
+    # --- Plot ---
+    fig = plt.figure(figsize=(6,5))
+    scatter = plt.scatter(
+        times,
+        kp_values,
+        c=kp_values,
+        cmap="RdYlGn_r",  # reversed so low=green, high=red
+        s=50,
+        edgecolor="k",
+        zorder=10
+    )
+    
+    # Colorbar
+    #cbar = plt.colorbar(scatter)
+    #cbar.set_label("Kp Index", fontsize=12)
+    
+    # Axes and formatting
+    plt.title(f"Kp Index — Past {time_frame}", fontsize=14)
+    plt.ylabel("Kp Value")
+    plt.xlabel("Date (UTC)")
+    plt.ylim(0, 9)
+    plt.grid(True, linestyle="--", alpha=0.5)
+    
+    # Format date axis
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+    plt.xticks(rotation=45)
+    plt.tight_layout(pad=3)
+    plt.close(fig)
+    
+    finalize_popup(fig, popup)
+    
+    
+def plot_gtf(root, result, Rc, make_gif):
+    popup = open_figure_popup(root)
 
     if make_gif:
         frames = []
@@ -62,20 +144,10 @@ def open_figure_popup(root, result, Rc, make_gif):
     
     plt.tight_layout(pad=3)
 
-    if make_gif:
-        frames.append(filename)
+    # if make_gif:
+    #     frames.append(filename)
         
     plt.close(fig)
 
-    # Embed the Matplotlib figure into the Tkinter window
-    canvas = FigureCanvasTkAgg(fig, master=popup)
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.pack(fill=tk.BOTH, expand=True)
-    canvas.draw()
-    
-
-    # Optional: Add a close button
-    close_button = ttk.Button(popup, text="Close", command=popup.destroy)
-    close_button.pack(pady=10)
-    
+    finalize_popup(fig, popup)
     
