@@ -13,6 +13,7 @@ from visual_design_elements import colors, fonts, images
 from PIL import Image, ImageTk
 import os
 import pandas as pd
+import webbrowser
 
 PRESETS = {
     "Custom": {"Cd": "", "A": "", "m": "", "rho": "", "v_rel": ""},
@@ -109,18 +110,18 @@ class GTFApp:
 # =============================================================================
 #         Menu
 # =============================================================================
-        # self.logo = Image.open(images.logo_dark)
-        # self.logo.thumbnail((150,150), Image.Resampling.LANCZOS)
-        # self.tk_image = ImageTk.PhotoImage(self.logo)
-        # self.image_label = ttk.Label(self.left_panel, image=self.tk_image, borderwidth=0)
-        # self.image_label.pack()
-        # # Place the image in the lower-right corner
-        # # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
-        # # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
-        # self.image_label.place(rely=0.05, relx=0.1, anchor=tk.NW)
+        self.logo = Image.open(images.logo_dark)
+        self.logo.thumbnail((150,150), Image.Resampling.LANCZOS)
+        self.tk_image = ImageTk.PhotoImage(self.logo)
+        self.image_label = ttk.Label(self.left_panel, image=self.tk_image, borderwidth=0)
+        self.image_label.pack()
+        # Place the image in the lower-right corner
+        # rely=1.0 and relx=1.0 position the anchor point at the bottom-right of the parent
+        # anchor=tk.SE sets the anchor of the image_label itself to its southeast corner
+        self.image_label.place(rely=0.05, relx=0.1, anchor=tk.NW)
         
-        # # Keep a reference to the image to prevent garbage collection
-        # self.image_label.image = self.tk_image 
+        # Keep a reference to the image to prevent garbage collection
+        self.image_label.image = self.tk_image 
 
 
         # --- Button on the Left Panel ---
@@ -134,7 +135,10 @@ class GTFApp:
         settings_btn = ttk.Button(self.left_panel, text="Settings", style="Menu.TButton") 
         settings_btn.pack(pady=10, padx=25, anchor="w") 
         
-        feedback_btn = ttk.Button(self.left_panel, text="Send Feedback", style="Menu.TButton") 
+        feedback_btn = ttk.Button(self.left_panel, 
+                                  text="Send Feedback", 
+                                  command=self.open_feedback_form,
+                                  style="Menu.TButton") 
         feedback_btn.pack(pady=10, padx=25, anchor="w") 
         
         upgrade_btn = ttk.Button(self.left_panel, text="Upgrade to Premium", style="Menu.TButton") 
@@ -392,6 +396,10 @@ class GTFApp:
         else:
             return "Nominal"
 
+
+    def open_feedback_form(self):
+        url = "https://sites.google.com/view/minerva-technologies/send-feedback"
+        webbrowser.open_new_tab(url)
 
 # -------------------------------------------------------
 # Run the app
