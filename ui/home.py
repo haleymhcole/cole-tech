@@ -11,22 +11,11 @@ import datetime as dt
 import numpy as np
 
 def render():
-    
-    # ---------------------------
-    #     PAGE CONFIG
-    # ---------------------------
-    st.set_page_config(
-        page_title="Space Weather Insights",
-        page_icon="☀️",
-        layout="wide",
-    )
-    
-    
     # ---------------------------
     #     HERO SECTION
     # ---------------------------
-    st.title("☀️ Space Weather Insights")
-    st.subheader("Real-Time Monitoring · Smarter Forecasting")
+    st.title("Space Weather Insights")
+    st.subheader("Real-Time Monitoring, Smarter Forecasting")
     
     st.write(
         "Track sunspots, geomagnetic activity, solar flux, and CME alerts — all in one place. "
