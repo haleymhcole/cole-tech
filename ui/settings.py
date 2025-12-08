@@ -25,8 +25,8 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 from pathlib import Path
-from config.settings_manager import get_settings, update_setting
-from generate_config import update_toml
+from config.settings_manager import get_settings #, update_setting
+# from generate_config import update_toml
 
 def render():    
     # st.title("Settings")
@@ -99,23 +99,23 @@ def render():
     st.subheader("Advanced Settings")
     plot_color = st.color_picker("Plotting Color")
     
-    if st.button("Save Settings"):
-        if data_format != settings["data_format"]:
-            update_setting("data_format", data_format)
+    # if st.button("Save Settings"):
+    #     if data_format != settings["data_format"]:
+    #         update_setting("data_format", data_format)
         
-        if image_format != settings["image_format"]:
-            update_setting("image_format", image_format)
+    #     if image_format != settings["image_format"]:
+    #         update_setting("image_format", image_format)
         
-        if video_format != settings["video_format"]:
-            update_setting("video_format", video_format)
+    #     if video_format != settings["video_format"]:
+    #         update_setting("video_format", video_format)
         
-        if units != settings["units"]:
-            update_setting("units", units)
+    #     if units != settings["units"]:
+    #         update_setting("units", units)
             
-        # if theme != settings["theme"]:
-        #     update_setting("theme", theme)
-        #     update_toml(theme)
+    #     # if theme != settings["theme"]:
+    #     #     update_setting("theme", theme)
+    #     #     update_toml(theme)
 
 
-        st.success("Settings saved.")
-        st.rerun()
+    #     st.success("Settings saved.")
+    #     st.rerun()

@@ -15,12 +15,12 @@ This includes:
 ✅ Logging so you always know what happened
 """
 
-from config.settings_manager import get_setting
+from config.settings_manager import get_settings
 import os
 from palette import PALETTE
 
 def generate_toml():
-    theme = get_setting("theme")
+    theme = get_settings("theme")
     color_palette = PALETTE[theme]
     
     # Values Streamlit expects
