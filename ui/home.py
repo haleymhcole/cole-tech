@@ -19,7 +19,7 @@ def render():
     
     st.write(
         "Track sunspots, geomagnetic activity, solar flux, and CME alerts — all in one place. "
-        "Built for researchers, hobbyists, forecasters, and the simply curious."
+        "Built for researchers, space operators, hobbyists, and the simply curious."
     )
     
     col1, col2 = st.columns(2)

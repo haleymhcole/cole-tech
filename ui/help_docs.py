@@ -14,7 +14,6 @@ import numpy as np
 def render():
     # --- Main Page Content ---
     st.title("Help & Documentation")
-    st.subheader("Help & Documentation")
     st.write("""
     - **How to use the app**
     - **What the models mean**

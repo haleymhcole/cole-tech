@@ -15,13 +15,20 @@ from ui import home
 from ui import settings
 from ui import nowcasting
 from ui import forecasting
+from ui import benchmarking
+from ui import feedback
+from ui import help_docs
 
 # Style
 from palette import PALETTE
 from theme_sync import sync_theme
 sync_theme()
 
-st.set_page_config(page_title="Space Weather Demo", layout="wide")
+st.set_page_config(
+    page_title="Space Weather Demo", 
+    page_icon=os.path.join("assets", "favicon.png"),
+    layout="wide"
+    )
 
 #st.title("Real-Time Space Weather Demo")
 
@@ -58,38 +65,68 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+logo_file = os.path.join("assets", "logo.png")
+st.sidebar.image(logo_file) #, caption='Equinox Technologies logo')
 
 
-PAGES = {
+st.sidebar.subheader("Main Tools")
+
+MAIN_PAGES = {
     "Home": home,
     "Nowcasting": nowcasting,
     "Forecasting": forecasting,
-    "Settings": settings
+    "Historical Benchmarking": benchmarking,
 }
 
+SECOND_PAGES = {
+    "Settings": settings,
+    "Submit Feedback":feedback,
+    "Help":help_docs,
+}
 
-def nav_button(name):
-    if st.sidebar.button(name):
-        st.session_state.active_menu = name
+# --------------------------
+# SECONDARY OPTIONS
+# --------------------------
 
-for p in PAGES:
-    nav_button(p)
+
+for p in MAIN_PAGES:
+    if st.sidebar.button(p): # , type='primary'
+        st.session_state.active_menu = p
+        
+
+st.sidebar.subheader("More")
+for p in SECOND_PAGES:
+    if st.sidebar.button(p, type='secondary'):
+        st.session_state.active_menu = p
+    
+st.sidebar.markdown("---")
 
 menu_selection = st.session_state.active_menu
 # choice = st.sidebar.selectbox("Menu", list(PAGES.keys()))
-page = PAGES[menu_selection]
+all_pages = MAIN_PAGES | SECOND_PAGES
+page = all_pages[menu_selection]
 page.render()
 
+# st.sidebar.markdown("---")
 
 
+
+# PAGES_extra = {
+#     "Settings": settings,
+#     "Submit Feedback":feedback,
+#     "Help":help_docs,
+# }
+
+# menu_selection = st.session_state.active_menu
+# page = PAGES[menu_selection]
+# page.render()
 
 # # --- Initialize session state ---
 # if "active_menu" not in st.session_state:
 #     st.session_state.active_menu = "home"
 
 
-# logo_file = os.path.join("Images", "logo.png")
-# st.sidebar.image(logo_file) #, caption='Equinox Technologies logo')
+
 
 
 # # --- Sidebar Navigation ---
@@ -108,7 +145,7 @@ page.render()
 # nav_button("Submit Feedback")
 # nav_button("Help")
 
-# st.sidebar.markdown("---")
+# 
 
 # # --- Render sub-menu content in the sidebar ---
 # menu_selection = st.session_state.active_menu
