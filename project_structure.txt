@@ -1,0 +1,49 @@
+my_app/
+│
+├── app.py                          # Main entry point (router)
+│
+├── pages/                          # All UI/Streamlit pages live here
+│   ├── home.py
+│   ├── nowcasting.py
+│   ├── forecasting.py
+│   ├── benchmarking.py
+│   ├── settings.py
+│   ├── feedback.py
+│   └── help_page.py
+│
+├── core/                           # Core scientific + data logic (NO Streamlit)
+│   ├── gtf/
+│   │   ├── compute_gtf.py
+│   │   ├── geomag.py
+│   │   └── utils.py
+│   ├── atmosphere/
+│   │   ├── transmission_models.py
+│   │   ├── climatology.py
+│   │   └── extinction_coeffs.py
+│   ├── solar/
+│   │   ├── sunspot.py
+│   │   ├── kp_index.py
+│   │   └── cme_forecasting.py
+│   └── __init__.py
+│
+├── utils/                          # General helper utilities
+│   ├── cache.py
+│   ├── plotting.py
+│   ├── file_io.py
+│   └── auth.py                     # for paywall/login later
+│
+├── data/                           # Input datasets, model coeffs, cached downloads
+│   └── igrf/
+│       └── igrf13coeffs.txt
+│
+├── assets/                         # Images, icons, diagrams, custom CSS
+│   ├── logo.png
+│   └── styles.css
+│
+├── config/
+│   ├── palette.py                  # Your color palette
+│   ├── settings.yaml               # App settings used by UI and models
+│   └── theme_generator.py          # Builds .streamlit/config.toml automatically
+│
+└── .streamlit/
+    └── config.toml                # UI theme produced from palette.py
