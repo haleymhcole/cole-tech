@@ -25,7 +25,7 @@ def get_root():
 def swap_boolean_for_check(x):
     # Swap 1s and 0s (or True and False) for ✔ check marks.
     if x:
-        return "✔"
+        return "✓"
     else:
         return ""
 

@@ -86,6 +86,10 @@ logo_file = os.path.join("assets", "logo.png")
 st.sidebar.image(logo_file) #, caption='Equinox Technologies logo')
 
 
+# # Start on home page.
+# home.render()
+
+
 st.sidebar.subheader("Main Tools")
 
 MAIN_PAGES = {
@@ -117,6 +121,7 @@ for p in SECOND_PAGES:
         st.session_state.active_menu = p
     
 st.sidebar.markdown("---")
+
 
 menu_selection = st.session_state.active_menu
 # choice = st.sidebar.selectbox("Menu", list(PAGES.keys()))

@@ -1,0 +1,6 @@
+data_format: csv
+image_format: png
+output_folder: outputs
+theme: dark
+units: imperial
+video_format: gif
