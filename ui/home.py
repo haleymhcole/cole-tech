@@ -9,6 +9,8 @@ import streamlit as st
 import pandas as pd
 import datetime as dt
 import numpy as np
+from core import get_realtime_data
+from ui import dashboard 
 
 def render():
     # ---------------------------
@@ -22,53 +24,17 @@ def render():
         "Built for researchers, space operators, hobbyists, and the simply curious."
     )
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button("🚀 Launch Dashboard")
-    with col2:
-        st.button("🔒 Unlock Pro Tools")
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     # st.button("🚀 Launch Dashboard")
+    #     if st.button("🚀 Launch Dashboard"): # , type='primary'
+    #         #st.session_state.active_menu = "🚀 Launch Dashboard"
+    #         #dashboard.render()
+    #         st.switch_page(dashboard)
+            
+    # with col2:
+    #     st.button("🔒 Unlock Pro Tools")
     
-    
-    st.markdown("---")
-    
-    # ---------------------------
-    #     QUICK STATUS CARDS
-    # ---------------------------
-    st.header("Current Space Weather Status")
-    
-    # Replace these placeholder values with your live data pipeline
-    kp_index = 3
-    solar_flux = 145.2
-    sunspot_num = 78
-    latest_cme = "No CME detected (past 24h)"
-    
-    c1, c2, c3, c4 = st.columns(4)
-    
-    with c1:
-        st.metric("Kp Index", kp_index)
-    
-    with c2:
-        st.metric("Solar Flux (F10.7)", solar_flux)
-    
-    with c3:
-        st.metric("Sunspot Number", sunspot_num)
-    
-    with c4:
-        st.metric("Latest CME", latest_cme)
-    
-    
-    st.markdown("---")
-    
-    # ---------------------------
-    #     MINI PLOT SECTION
-    # ---------------------------
-    st.header("Solar Activity — Last 12 Months")
-    
-    # Fake data plot — insert your NOAA data instead
-    dates = pd.date_range(end=dt.datetime.now(), periods=365)
-    fake_sunspots = np.random.normal(80, 10, size=365)
-    
-    st.line_chart(pd.DataFrame({"Sunspots": fake_sunspots}, index=dates))
     
     st.markdown("---")
     

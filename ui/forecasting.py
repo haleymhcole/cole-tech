@@ -13,6 +13,6 @@ import numpy as np
 
 def render():
     # --- Main Page Content ---
-    st.title("Nowcasting")
+    st.title("Forecasting")
     st.write("Select forecast window:")
     window = st.selectbox("Window", ["1 Day", "3 Day", "7 Day", "30 Day"])

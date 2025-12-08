@@ -12,6 +12,7 @@ from datetime import datetime
 import os
 
 from ui import home
+from ui import dashboard
 from ui import settings
 from ui import nowcasting
 from ui import forecasting
@@ -77,6 +78,19 @@ st.markdown(
         */
     }
     
+    
+    /* Tertiary button style -- Target the specific button by its key or type 
+    div[data-testid="stButton"] button[data-testid="stButton-tertiary"] 
+    .stButton button[data-testid="stButtonTertiary"] 
+    div[data-baseweb="button"] > div > button[kind="tertiary"] */
+    
+    .stButton button[data-testid="stButtonTertiary"]  {
+        background-color: #acb0ca;
+        color: red !important; /* Text color */
+        border-radius: 8px; /* Optional: Add some roundness */
+        font-size: 7;
+    }
+    
     </style>
     """,
     unsafe_allow_html=True
@@ -94,6 +108,7 @@ st.sidebar.subheader("Main Tools")
 
 MAIN_PAGES = {
     "Home": home,
+    "Dashboard": dashboard,
     "Nowcasting": nowcasting,
     "Forecasting": forecasting,
     "Historical Benchmarking": benchmarking,
@@ -117,7 +132,7 @@ for p in MAIN_PAGES:
 
 st.sidebar.subheader("More")
 for p in SECOND_PAGES:
-    if st.sidebar.button(p, type='secondary'):
+    if st.sidebar.button(p): # , type='tertiary'
         st.session_state.active_menu = p
     
 st.sidebar.markdown("---")
