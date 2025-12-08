@@ -125,7 +125,8 @@ def get_GTF(lat, lon, alt_km, date, R_vals=None):
         R_vals = np.linspace(0, 20, 200)  # Rigidity range [GV]
 
     Rc, lam_m = compute_cutoff_rigidity(lat, lon, alt_km, date)
-    T_vals = geomagnetic_transmission(R_vals, Rc, k=1.2)
+    #T_vals = geomagnetic_transmission(R_vals, Rc, k=1.2)
+    T_vals = geomagnetic_transmission(R_vals, Rc)
 
     return {
         "R": R_vals,

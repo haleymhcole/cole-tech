@@ -54,15 +54,15 @@ def compute_drag():
         messagebox.showerror("Input Error", "Please enter valid numeric values.")
 
 
-from nrlmsise00 import msise_model
-from spaceweather import get_f107_ap
+# from nrlmsise00 import msise_model # pip install msise00, pip install nrlmsise00
+# from spaceweather import get_f107_ap
 
-def fetch_model_data(lat, lon, alt):
-    dt = datetime.strptime(date_entry.get() + " " + time_entry.get(), "%Y-%m-%d %H:%M")
-    F10_7, Ap = get_f107_ap(dt)
-    atm = msise_model(dt, alt_km=alt, lat_deg=lat, lon_deg=lon, f107=F10_7, ap=Ap)
-    rho = atm["Total"]["rho"]
-    return rho, F10_7, Ap
+# def fetch_model_data(lat, lon, alt):
+#     dt = datetime.strptime(date_entry.get() + " " + time_entry.get(), "%Y-%m-%d %H:%M")
+#     F10_7, Ap = get_f107_ap(dt)
+#     atm = msise_model(dt, alt_km=alt, lat_deg=lat, lon_deg=lon, f107=F10_7, ap=Ap)
+#     rho = atm["Total"]["rho"]
+#     return rho, F10_7, Ap
 
 
 
