@@ -72,7 +72,7 @@ def download_cdaw_catalog():
     full_catalog = pd.concat(all_cmes, ignore_index=True)
 
     # Export
-    f=os.path.join("Data", "CDAW_CME_Catalog.csv")
+    f=os.path.join("data", "CDAW_CME_Catalog.csv")
 
     # Save locally
     full_catalog.to_csv(f, index=False)
@@ -80,13 +80,13 @@ def download_cdaw_catalog():
 
 
 def load_cdaw_catalog():
-    f=os.path.join("Data", "CDAW_CME_Catalog.csv")
+    f=os.path.join("data", "CDAW_CME_Catalog.csv")
     df = pd.read_csv(f)
     # df.drop(['Unnamed: 0', 'Description'], axis=1, inplace=True)
     return df
 
 def load_cdaw_catalog_processed():
-    f=os.path.join("Data", "CDAW_CME_Catalog_Processed.csv")
+    f=os.path.join("data", "CDAW_CME_Catalog_Processed.csv")
     df = pd.read_csv(f)
     return df
 
@@ -212,6 +212,16 @@ def continuous_day_calendar(row):
     diff_seconds = (date - epoch).total_seconds()
     diff_days = diff_seconds/86400
     return diff_days
+
+def get_datetime(row):
+    year = row['Year']
+    month = row['Month']
+    day = row['Day']
+    hour = row['Hour']
+    minute = row['Minute']
+    second = row['Second']
+    date = datetime(year, month, day, hour, minute, second)
+    return date
     
 def clean_pa(x):
     if "Halo" in x:
@@ -228,25 +238,24 @@ debug = True
 # =============================================================================
 # Load and Pre-Process Data
 # =============================================================================
-# df0 = load_cdaw_catalog()
-# df = process_cdaw_data(df0)
-# df = plot_missing_data(df)
-# f=os.path.join("Data", "CDAW_CME_Catalog_Processed.csv")
+df0 = load_cdaw_catalog()
+df = process_cdaw_data(df0)
+df = plot_missing_data(df)
 
 # df['Days Since Epoch'] = df.apply(continuous_day_calendar, axis=1)
 # df.drop(['Year', 'Month', 'Day', 'Hour', 'Minute', 'Second'], axis=1, inplace=True)
-# df['Central PA [deg]'] = df['Central PA [deg]'].apply(clean_pa)
-# # Drop acceleration column.
-# # From CDAW database: "*1 Acceleration is uncertain due to either poor height measurement or a small number of height-time measurements (See Section 3.4 of Yashiro et al. 2004 for details)."
-# df.drop('Accel [m/s2]', axis=1, inplace=True)
+df['Central PA [deg]'] = df['Central PA [deg]'].apply(clean_pa)
+# Drop acceleration column.
+# From CDAW database: "*1 Acceleration is uncertain due to either poor height measurement or a small number of height-time measurements (See Section 3.4 of Yashiro et al. 2004 for details)."
+#df.drop('Accel [m/s2]', axis=1, inplace=True)
 
-# df.to_csv(f, index=False)
+df['Accel [m/s2]'] = df['Accel [m/s2]'].apply(lambda x: x.split("*")[0]) 
 
 
 # =============================================================================
 # ML Model
 # =============================================================================
-df = load_cdaw_catalog_processed()
+#df = load_cdaw_catalog_processed()
 
 
 # for col in df.drop('Days Since Epoch', axis=1):
@@ -278,138 +287,149 @@ df = load_cdaw_catalog_processed()
 
 df['Mild Event'] = df['Poor Event'] | df['Very Poor Event'] | df['Only C2']
 df.drop(['Poor Event', 'Very Poor Event', 'Only C2'], axis=1, inplace=True)
-good_events = df.loc[(df['Mild Event']==0)].drop('Mild Event', axis=1)
 
-boolean_cols = ['Mild Event', 'Measurement Difficulties']
-value_cols = ['Central PA [deg]', 'Angular Width [deg]', 'Linear Speed [km/s]',
-       '2nd-order Speed at final height [km/s]',
-       '2nd-order Speed at 20 Rs [km/s]', 'MPA [deg]', 'Days Since Epoch']
+df['Date'] = df.apply(get_datetime, axis=1)
+df.drop(['Year', 'Month', 'Day', 'Hour', 'Minute', 'Second'], axis=1, inplace=True)
 
-# this_bool = boolean_cols[0]
-# other_bool = boolean_cols[1]
-# plt.figure(figsize=(6,6))
-# sns.pairplot(df.drop(other_bool, axis=1), hue=this_bool, s=4)
-# plt.savefig(os.path.join("Images", "CMEs_pairplot0.png"), dpi=300)
-# plt.close()
+df.set_index('Date', inplace=True)
 
-# this_bool = boolean_cols[1]
-# other_bool = boolean_cols[0]
-# plt.figure(figsize=(8,8))
-# sns.pairplot(df.drop(other_bool, axis=1), hue=this_bool)
-# plt.savefig(os.path.join("Images", "CMEs_pairplot1.png"), dpi=300)
-# plt.close()
+f=os.path.join("data", "CDAW_CME_Catalog_Processed.csv")
+df.to_csv(f)
 
+# good_events = df.loc[(df['Mild Event']==0)].drop('Mild Event', axis=1)
 
-# plt.figure(figsize=(6,6))
-# sns.pairplot(good_events.drop("Measurement Difficulties", axis=1))
-# plt.savefig(os.path.join("Images", "CMEs_pairplot2.png"), dpi=300)
-# plt.close()
+# boolean_cols = ['Mild Event', 'Measurement Difficulties']
+# value_cols = ['Central PA [deg]', 'Angular Width [deg]', 'Linear Speed [km/s]',
+#        '2nd-order Speed at final height [km/s]',
+#        '2nd-order Speed at 20 Rs [km/s]', 'MPA [deg]', 'Days Since Epoch']
 
+# # this_bool = boolean_cols[0]
+# # other_bool = boolean_cols[1]
+# # plt.figure(figsize=(6,6))
+# # sns.pairplot(df.drop(other_bool, axis=1), hue=this_bool, s=4)
+# # plt.savefig(os.path.join("Images", "CMEs_pairplot0.png"), dpi=300)
+# # plt.close()
 
-# plt.figure(figsize=(6,6))
-# sns.scatterplot(good_events, x='Days Since Epoch', y='Central PA [deg]')
-# plt.show()
-# plt.close()
+# # this_bool = boolean_cols[1]
+# # other_bool = boolean_cols[0]
+# # plt.figure(figsize=(8,8))
+# # sns.pairplot(df.drop(other_bool, axis=1), hue=this_bool)
+# # plt.savefig(os.path.join("Images", "CMEs_pairplot1.png"), dpi=300)
+# # plt.close()
 
 
-df['CPA Range'] = df['Central PA [deg]'].apply(lambda x: "180-360 deg" if x >180 else "0-180 deg")
+# # plt.figure(figsize=(6,6))
+# # sns.pairplot(good_events.drop("Measurement Difficulties", axis=1))
+# # plt.savefig(os.path.join("Images", "CMEs_pairplot2.png"), dpi=300)
+# # plt.close()
+
+
+# # plt.figure(figsize=(6,6))
+# # sns.scatterplot(good_events, x='Days Since Epoch', y='Central PA [deg]')
+# # plt.show()
+# # plt.close()
+
+
+# df['CPA Range'] = df['Central PA [deg]'].apply(lambda x: "180-360 deg" if x >180 else "0-180 deg")
+
+# # plt.figure(figsize=(10,6))
+# # sns.scatterplot(df, x='Days Since Epoch', y='Linear Speed [km/s]', hue='CPA Range')
+# # plt.show()
+# # plt.close()
+
+
+# # plt.figure(figsize=(10,10))
+# # sns.heatmap(good_events.corr(), cmap='jet')
+# # plt.tight_layout()
+# # plt.savefig(os.path.join("Images", "CMEs_corr.png"), dpi=300)
+# # plt.show()
+# # plt.close()
+
+
 
 # plt.figure(figsize=(10,6))
-# sns.scatterplot(df, x='Days Since Epoch', y='Linear Speed [km/s]', hue='CPA Range')
-# plt.show()
+# sns.scatterplot(df, x='Days Since Epoch', y='Linear Speed [km/s]', s=5)
+# plt.savefig(os.path.join("Images", "linear_speed.png"), dpi=300)
+# plt.close()
+
+# plt.figure(figsize=(10,6))
+# sns.scatterplot(df, x='Days Since Epoch', y='Angular Width [deg]', s=5)
+# plt.savefig(os.path.join("Images", "angular_width.png"), dpi=300)
 # plt.close()
 
 
-# plt.figure(figsize=(10,10))
-# sns.heatmap(good_events.corr(), cmap='jet')
-# plt.tight_layout()
-# plt.savefig(os.path.join("Images", "CMEs_corr.png"), dpi=300)
-# plt.show()
-# plt.close()
+# def get_cme_ranking(row):
+#     # My custom CME ranking. 
+#     # 0 = no activity, 1 = minimal activity/poor event. 2 = full event 
+#     if row['Mild Event']:
+#         return 1
+#     else:
+#         return 2
+# df['CME Ranking'] = df.apply(get_cme_ranking, axis=1)
 
+# # For every pair of decimal values, you want to insert any integer values that 
+# # fall strictly between them, and the new rows should have 0 for all other columns.
+# def expand_with_integers(df, col):
+#     new_rows = []
 
-
-plt.figure(figsize=(10,6))
-sns.scatterplot(df, x='Days Since Epoch', y='Linear Speed [km/s]', s=5)
-plt.savefig(os.path.join("Images", "linear_speed.png"), dpi=300)
-plt.close()
-
-plt.figure(figsize=(10,6))
-sns.scatterplot(df, x='Days Since Epoch', y='Angular Width [deg]', s=5)
-plt.savefig(os.path.join("Images", "angular_width.png"), dpi=300)
-plt.close()
-
-
-def get_cme_ranking(row):
-    # My custom CME ranking. 
-    # 0 = no activity, 1 = minimal activity/poor event. 2 = full event 
-    if row['Mild Event']:
-        return 1
-    else:
-        return 2
-df['CME Ranking'] = df.apply(get_cme_ranking, axis=1)
-
-# For every pair of decimal values, you want to insert any integer values that 
-# fall strictly between them, and the new rows should have 0 for all other columns.
-def expand_with_integers(df, col):
-    new_rows = []
-
-    for i in range(len(df) - 1):
-        current_val = df.loc[i, col]
-        next_val = df.loc[i + 1, col]
+#     for i in range(len(df) - 1):
+#         current_val = df.loc[i, col]
+#         next_val = df.loc[i + 1, col]
         
-        # Add current row
-        new_rows.append(df.iloc[i])
+#         # Add current row
+#         new_rows.append(df.iloc[i])
         
-        # Find integers between them
-        start = int(np.ceil(current_val))
-        end = int(np.floor(next_val))
+#         # Find integers between them
+#         start = int(np.ceil(current_val))
+#         end = int(np.floor(next_val))
         
-        for v in range(start, end + 1):
-            if current_val < v < next_val:
-                # Create new row with v and zeros in other columns
-                row = {c: 0 for c in df.columns}
-                row[col] = v
-                new_rows.append(pd.Series(row))
+#         for v in range(start, end + 1):
+#             if current_val < v < next_val:
+#                 # Create new row with v and zeros in other columns
+#                 row = {c: 0 for c in df.columns}
+#                 row[col] = v
+#                 new_rows.append(pd.Series(row))
     
-    # Add last row
-    new_rows.append(df.iloc[-1])
+#     # Add last row
+#     new_rows.append(df.iloc[-1])
 
-    return pd.DataFrame(new_rows).reset_index(drop=True)
+#     return pd.DataFrame(new_rows).reset_index(drop=True)
 
-def fill_with_nominal_days(df, col):
-    new_rows = []
+# def fill_with_nominal_days(df, col):
+#     new_rows = []
 
-    for i in range(len(df) - 1):
-        current_val = df.loc[i, col]
-        next_val = df.loc[i + 1, col]
+#     for i in range(len(df) - 1):
+#         current_val = df.loc[i, col]
+#         next_val = df.loc[i + 1, col]
         
-        # Add current row
-        new_rows.append(df.iloc[i])
+#         # Add current row
+#         new_rows.append(df.iloc[i])
         
-        # Find out how many new rows we need to add.
-        diff = next_val - current_val
-        number_new_rows = np.floor(diff)
-        step_size = diff/(number_new_rows+1)
+#         # Find out how many new rows we need to add.
+#         diff = next_val - current_val
+#         number_new_rows = np.floor(diff)
+#         step_size = diff/(number_new_rows+1)
         
-        new_val = current_val
-        for i in range(1, int(number_new_rows+1)):
-            # Create new row with v and zeros in other columns
-            new_val+=step_size
-            row = {c: 0 for c in df.columns}
-            row[col] = new_val
-            new_rows.append(pd.Series(row))
+#         new_val = current_val
+#         for i in range(1, int(number_new_rows+1)):
+#             # Create new row with v and zeros in other columns
+#             new_val+=step_size
+#             row = {c: 0 for c in df.columns}
+#             row[col] = new_val
+#             new_rows.append(pd.Series(row))
  
-    # Add last row
-    new_rows.append(df.iloc[-1])
-    return pd.DataFrame(new_rows).reset_index(drop=True)  
+#     # Add last row
+#     new_rows.append(df.iloc[-1])
+#     return pd.DataFrame(new_rows).reset_index(drop=True)  
         
 
-data = fill_with_nominal_days(df, 'Days Since Epoch')
-# data = data[['Days Since Epoch', 'CME Ranking']]
+# data = fill_with_nominal_days(df, 'Days Since Epoch')
+# # data = data[['Days Since Epoch', 'CME Ranking']]
 
-# i =  42000
-# plt.plot(data['Days Since Epoch'].iloc[i:], data['CME Ranking'].iloc[i:], lw=1)
+# # i =  42000
+# # plt.plot(data['Days Since Epoch'].iloc[i:], data['CME Ranking'].iloc[i:], lw=1)
 
 
-data.to_excel(os.path.join("Data", "CDAW Nominal and Severe Database.xlsx"), index=False)
+# data.to_excel(os.path.join("Data", "CDAW Nominal and Severe Database.xlsx"), index=False)
+
+

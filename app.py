@@ -60,6 +60,23 @@ st.markdown(
             }
         
     }
+    
+    
+    /* Style for H1 titles 
+    h1 {
+        color: #1A5276; 
+        font-family: 'Arial', sans-serif;
+        font-size: 36px;
+    }
+    */
+    /* Style for general body text */
+    p {
+        color: #333333; /* Dark Gray 
+        font-family: 'Georgia', serif;
+        font-size: 16px;
+        */
+    }
+    
     </style>
     """,
     unsafe_allow_html=True
