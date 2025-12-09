@@ -91,27 +91,23 @@ def get_data():
     bsrn = current_data['bsrn'].astype(float)
     rotd = current_data['rotd'].astype(float)
     
-    properties = {"Apavg":Apavg,
-                  "f107_observed":f107_observed, 
-                  "Cp":Cp, 
-                  "isn":isn,
-                  "bsrn":bsrn,
-                  "rotd":rotd}
-    
-    return sw_data, current_datetime, agos, properties
+    now_properties = {"Ap":("Apavg", Apavg),
+                      "Solar Flux":("f107_obs", f107_observed), 
+                      "Cp":("Cp", Cp), 
+                      "Sunspot Number":("isn",isn),
+                      "Bartels Solar Rotation Number":("bsrn",bsrn),
+                      "Bartels Rotation Day":("rotd",rotd)}
+        
+    return sw_data, current_datetime, agos, now_properties
 
     
-def plot(sw_data, current_datetime, time_frame, ago, var_name):
+def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     # Filter data for the last week
     data_range = sw_data.loc[ago:current_datetime]
     
-    # Extract datetime and Kp
+    # Extract datetime and y-values.
     times = data_range.index
-    
-    if var_name == "Kp Index":
-        values = data_range["Kp0"].astype(float) 
-    elif var_name == "Solar Flux (F10.7)":
-        values = data_range["f107_obs"].astype(float) 
+    values = data_range[var_name].astype(float) 
     
     # --- Plot ---
     fig = plt.figure(figsize=(10, 5))
@@ -127,13 +123,13 @@ def plot(sw_data, current_datetime, time_frame, ago, var_name):
     
     # Colorbar
     cbar = plt.colorbar(scatter)
-    cbar.set_label(var_name, fontsize=12)
+    cbar.set_label(title, fontsize=12)
     
     # Axes and formatting
-    plt.title(f"{var_name} — {time_frame}", fontsize=14)
-    plt.ylabel(var_name)
+    plt.title(f"{title} — {time_frame}", fontsize=14)
+    plt.ylabel(title)
     plt.xlabel("Date (UTC)")
-    if "Kp" in var_name:
+    if "Kp" in title:
         plt.ylim(0, 9)
     plt.grid(True, linestyle="--", alpha=0.5)
     
