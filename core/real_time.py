@@ -94,7 +94,7 @@ def get_data():
     rotd = current_data['rotd'].astype(float)
     
     now_properties = {"Ap":("Apavg", Apavg),
-                      "Solar Flux":("f107_obs", f107_observed), 
+                      "Solar Flux (Adjusted to 1 AU)":("f107_adj", f107_observed), 
                       "Cp":("Cp", Cp), 
                       "Sunspot Number":("isn",isn),
                       "Bartels Solar Rotation Number":("bsrn",bsrn),
@@ -108,8 +108,10 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
         # data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime + timedelta(days=30)]
         # data_range[var_name] = np.nan
         data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime]
-        trendline = forecast.forecast(data_range.index, data_range[var_name])
-        x = data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime + timedelta(days=30)].index
+        trendline = forecast.get_trend(data_range[var_name].values)
+        data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime + timedelta(days=30)]
+        data_range[var_name].loc[current_datetime:current_datetime + timedelta(days=30)] = np.nan #TODO: swap so that current data is not changed to NAN
+        x = np.arange(1, len(data_range)+1)
     else:
         # Filter data for the time frame of interest.
         data_range = sw_data.loc[ago:current_datetime]
@@ -143,7 +145,7 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     plt.grid(True, linestyle="--", alpha=0.5)
     
     if time_frame == "Forecasting":
-        plt.plot(x, trendline(x), label='Trendline')
+        plt.plot(data_range.index, trendline(x), label='Trendline', color='red')
     
     
     # Format date axis

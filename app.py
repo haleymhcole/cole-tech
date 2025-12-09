@@ -38,6 +38,7 @@ st.markdown(
     <style>
     [data-testid="stSidebar"] {
         background-color: #e3e4ef; 
+        max-width: 250px; 
         /* color: #ffffff; */
         
         .stButton button {
