@@ -58,15 +58,21 @@ def render():
     # ---------------------------
     #     MINI PLOT SECTION
     # ---------------------------
-    st.header("🚀 In-Depth Analysis")
-    selected_option = st.selectbox("Choose an option:", now_properties.keys())
+    
+    c1, c2, c3 = st.columns([2,1,2])
+    with c1:
+        st.header("🚀 In-Depth Analysis")
+    with c2:
+        selected_option = st.selectbox("Choose a property to analyze:", now_properties.keys())
+    
+    st.space(size="medium") # Adds a medium-sized vertical space height="medium"
     
     c1, c2 = st.columns([1,2])
-    
     with c1:
         st.subheader("⏱️ Real-Time Properties")
         st.write("**Track how key environmental variables evolve over time, and explore short-term to seasonal trends using interactive plots.**")
-        st.write("This section provides continuously updated environmental and space-weather indicators relevant to satellite operators, atmospheric scientists, and mission planners. Select a time window to analyze recent behavior, identify anomalies, and compare today’s conditions with historical context.")
+        # Text for article/user-guide: This section provides continuously updated environmental and space-weather indicators relevant to satellite operators, atmospheric scientists, and mission planners. 
+        st.write("Select a time window to analyze recent behavior, identify anomalies, and compare today’s conditions with historical context.")
         
         with st.expander("❓ How to Use This Panel"):
             st.markdown("""
@@ -107,11 +113,12 @@ def render():
             with tab:
                 #st.subheader(f"Kp Index -- {tab_name}")
                 fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, now_properties[selected_option][0])
-                st.pyplot(fig)
+                #st.pyplot(fig)
+                st.plotly_chart(fig, use_container_width=True)
     
     st.subheader("📈 Forecasting")
     fig = real_time.plot(sw_data, current_datetime, "Forecasting", agos[t], selected_option, now_properties[selected_option][0])
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
     
     
     # for var_name in ["Kp Index", "Solar Flux (F10.7)"]:

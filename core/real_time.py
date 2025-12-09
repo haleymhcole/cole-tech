@@ -67,6 +67,8 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 from core import forecast
+import plotly.express as px
+import plotly.graph_objs as go
 
 def get_data():
     # --- Load and slice the data ---
@@ -118,39 +120,71 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     
     # Extract datetime and y-values.
     times = data_range.index
-    values = data_range[var_name].astype(float) 
+    values = data_range[var_name].values.astype(float) 
     
     # --- Plot ---
-    fig = plt.figure(figsize=(8, 4), dpi=300)
-    scatter = plt.scatter(
-        times,
-        values,
-        c=values,
-        cmap="RdYlGn_r",  # reversed so low=green, high=red
-        s=100,
-        edgecolor="k",
-        zorder=10
+    # Create base scatter
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=times,
+        y=values,
+        mode="markers",
+        marker=dict(
+            size=10,
+            color=values,
+            colorscale="RdYlGn_r",   # low=green, high=red
+            showscale=True,
+            colorbar=dict(title=title),
+            line=dict(color="black", width=0.7)
+        ),
+        name=title,
+        hovertemplate=(
+            "<b>Date:</b> %{times}<br>"
+            f"<b>{title}:</b> %{values}<extra></extra>"
+        )
+    ))
+
+    # Add trendline if forecasting mode
+    if time_frame == "Forecasting" and trendline is not None and data_range is not None:
+        fig.add_trace(go.Scatter(
+            x=data_range.index,
+            y=trendline(np.arange(len(data_range))),
+            mode="lines",
+            line=dict(color="red", width=2),
+            name="Trendline",
+            hovertemplate="<b>Trend:</b> %{trendline(np.arange(len(data_range)))}<extra></extra>"
+        ))
+
+    # Layout (titles, labels, etc.)
+    fig.update_layout(
+        title=f"{title} — {time_frame}",
+        xaxis_title="Date (UTC)",
+        yaxis_title=title,
+        template="plotly_white",
+        height=400,
+        margin=dict(l=40, r=20, t=60, b=40),
     )
-    
-    # Colorbar
-    cbar = plt.colorbar(scatter)
-    cbar.set_label(title, fontsize=12)
-    
-    # Axes and formatting
-    plt.title(f"{title} — {time_frame}", fontsize=14)
-    plt.ylabel(title)
-    plt.xlabel("Date (UTC)")
+
     if "Kp" in title:
-        plt.ylim(0, 9)
-    plt.grid(True, linestyle="--", alpha=0.5)
-    
-    if time_frame == "Forecasting":
-        plt.plot(data_range.index, trendline(x), label='Trendline', color='red')
+        fig.update_yaxis(range=[0, 9])
     
     
     # Format date axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
     plt.xticks(rotation=45)
+    
+    # Update the layout to position the legend at the bottom
+    fig.update_layout(
+        legend=dict(
+            orientation="h",  # Horizontal orientation for better fit at the bottom
+            yanchor="bottom", # Anchor the legend to its bottom edge
+            y=-0.3,           # Adjust this value to position the legend below the plot area
+            xanchor="center", # Anchor the legend to its center horizontally
+            x=0.5             # Center the legend horizontally
+            )
+        )
+        
     plt.tight_layout()
 
     return fig
