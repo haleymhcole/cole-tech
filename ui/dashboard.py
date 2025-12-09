@@ -58,16 +58,21 @@ def render():
     # ---------------------------
     #     MINI PLOT SECTION
     # ---------------------------
-    st.header("⏱︎ Real-Time Properties")
-    selected_option = st.selectbox("Choose an option:", now_properties.keys())
-    tab_names = ["Past Week", "Past Month", "Past Year", "Forecasting"]
-    tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
-    for t, time_frame in enumerate(tab_names):
-        tab = tabs_dict[t]
-        with tab:
-            #st.subheader(f"Kp Index -- {tab_name}")
-            fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, now_properties[selected_option][0])
-            st.pyplot(fig)
+    c1, c2 = st.columns([1,2])
+    
+    with c1:
+        st.header("⏱︎ Real-Time Properties")
+        selected_option = st.selectbox("Choose an option:", now_properties.keys())
+    
+    with c2:
+        tab_names = ["Past Week", "Past Month", "Past Year", "Forecasting"]
+        tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
+        for t, time_frame in enumerate(tab_names):
+            tab = tabs_dict[t]
+            with tab:
+                #st.subheader(f"Kp Index -- {tab_name}")
+                fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, now_properties[selected_option][0])
+                st.pyplot(fig)
     
     # for var_name in ["Kp Index", "Solar Flux (F10.7)"]:
     #     st.header(var_name)

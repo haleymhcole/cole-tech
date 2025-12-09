@@ -119,7 +119,7 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     values = data_range[var_name].astype(float) 
     
     # --- Plot ---
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(8, 4), dpi=300)
     scatter = plt.scatter(
         times,
         values,
