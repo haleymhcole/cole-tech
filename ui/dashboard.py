@@ -9,7 +9,7 @@ import streamlit as st
 import pandas as pd
 import datetime as dt
 import numpy as np
-from core import get_realtime_data
+from core import real_time
 
 def render():
     # ---------------------------
@@ -18,30 +18,40 @@ def render():
     st.title("Dashboard")
     
     # ---------------------------
+    #     GET REALTIME DATA
+    # ---------------------------
+    sw_data, current_datetime, agos, now_properties = real_time.get_data()
+    
+    
+    # ---------------------------
     #     QUICK STATUS CARDS
     # ---------------------------
     st.header("Current Space Weather Status")
     
     # Replace these placeholder values with your live data pipeline
     # kp_index = 3
-    kp_index = get_realtime_data.kp()
-    solar_flux = 145.2
+    # kp_index = real_time.kp()
+    #solar_flux = 145.2
     sunspot_num = 78
     latest_cme = "No CME detected (past 24h)"
     
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     
     with c1:
-        st.metric("Kp Index", kp_index)
+        st.metric("Ap Index", now_properties['Apavg'])
+        st.metric("Geomagnetic Activity Cp Index (0–2.5)", now_properties['Cp'])
     
     with c2:
-        st.metric("Solar Flux (F10.7)", solar_flux)
-    
+        st.metric("Sunspot Number", now_properties['isn'])
+        st.metric("Solar Flux (F10.7)", now_properties['f107_observed'])
+        
+        
     with c3:
-        st.metric("Sunspot Number", sunspot_num)
+        st.metric("Bartels Solar Rotation Number", now_properties['bsrn'])
+        st.metric("Bartels Rotation Day (1–27)", now_properties['rotd'])
     
-    with c4:
-        st.metric("Latest CME", latest_cme)
+    # with c4:
+    #     st.metric("Latest CME", latest_cme)
     
     
     st.markdown("---")
@@ -49,23 +59,21 @@ def render():
     
     
     
-    
     # ---------------------------
     #     MINI PLOT SECTION
     # ---------------------------
-    st.header("Kp Index")
-
-    tab_names = ["Past Week", "Past Month", "Past Year"]
-    tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
-
-    for t, tab_name in enumerate(tab_names):
-        tab = tabs_dict[t]
-        with tab:
-            #st.subheader(f"Kp Index -- {tab_name}")
-            fig = get_realtime_data.plot_kp(tab_name)
-            st.pyplot(fig)
-        
     
+    for var_name in ["Kp Index", "Solar Flux (F10.7)"]:
+        st.header(var_name)
+        tab_names = ["Past Week", "Past Month", "Past Year"]
+        tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
+        for t, time_frame in enumerate(tab_names):
+            tab = tabs_dict[t]
+            with tab:
+                #st.subheader(f"Kp Index -- {tab_name}")
+                fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], var_name)
+                st.pyplot(fig)
+        
     
     
     

@@ -37,49 +37,88 @@ which can be more suitable for averaging and certain types of scientific analysi
 
 The data provided in this column is part of the daily space weather indices used 
 for tasks such as atmospheric density modeling for satellite operations. 
+
+
+| Column         | Meaning                                          |
+| -------------- | ------------------------------------------------ |
+| bsrn           | Bartels solar rotation number                    |
+| rotd           | Day of Bartels rotation (1–27)                   |
+| Kp0…Kp21       | Kp geomagnetic index for each 3-hour UT interval |
+| Kpsum          | Sum of all 8 daily Kp values                     |
+| Ap0…Ap21       | Ap (linear Kp) for each 3-hour interval          |
+| Apavg          | Daily mean Ap index                              |
+| Cp             | Daily geomagnetic activity index (0–2.5)         |
+| C9             | Same as Cp but 0–9 scale                         |
+| isn            | International Sunspot Number                     |
+| f107_adj       | Daily F10.7 adjusted                             |
+| f107_81ctr_adj | 81-day centered running mean (adjusted)          |
+| f107_81lst_adj | 81-day backward running mean (adjusted)          |
+| f107_obs       | Daily observed F10.7                             |
+| f107_81ctr_obs | 81-day centered observed mean                    |
+| f107_81lst_obs | 81-day backward observed mean                    |
+| Q              | Solar quiet-level X-ray background index         |
+
 """
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime, timedelta
-import spaceweather as sw  # assuming this is the library you're using
+import spaceweather as sw  
 import pandas as pd 
-import tkinter as tk
-from tkinter import messagebox
+import streamlit as st
 
-
-def plot_kp(time_frame):
+def get_data():
     # --- Load and slice the data ---
     sw_data = sw.celestrak.sw_daily(update=True)
-    
-    # Ensure datetime index
     sw_data.index = pd.to_datetime(sw_data.index)
-    
     current_datetime = datetime.utcnow()
-    one_week_ago = current_datetime - timedelta(weeks=1)
-    one_month_ago = current_datetime - timedelta(days=30)
+    current_data = sw_data.loc[:current_datetime].iloc[-1]
     
+    agos = [current_datetime - timedelta(weeks=1),
+            current_datetime - timedelta(days=30),
+            current_datetime - timedelta(days=365)]
     
-    if time_frame == "Week":
-        ago = one_week_ago
-    elif time_frame == "Month":
-        ago = one_month_ago
-    else:
-        messagebox.showerror("Error", "Invalid time frame selected for Kp trend.")
+    # kp_index = current_data["Kp0"].astype(float)
+    Apavg = current_data["Apavg"].astype(float)
+    f107_observed = current_data["f107_obs"].astype(float)
     
+    # Daily geomagnetic activity index (0–2.5)
+    Cp = current_data['Cp'].astype(float)
+    
+    # International sunspot number
+    isn = current_data['isn'].astype(float)
+    
+    bsrn = current_data['bsrn'].astype(float)
+    rotd = current_data['rotd'].astype(float)
+    
+    properties = {"Apavg":Apavg,
+                  "f107_observed":f107_observed, 
+                  "Cp":Cp, 
+                  "isn":isn,
+                  "bsrn":bsrn,
+                  "rotd":rotd}
+    
+    return sw_data, current_datetime, agos, properties
+
+    
+def plot(sw_data, current_datetime, time_frame, ago, var_name):
     # Filter data for the last week
     data_range = sw_data.loc[ago:current_datetime]
     
     # Extract datetime and Kp
     times = data_range.index
-    kp_values = data_range["Kp0"].astype(float)  # make sure it's numeric
+    
+    if var_name == "Kp Index":
+        values = data_range["Kp0"].astype(float) 
+    elif var_name == "Solar Flux (F10.7)":
+        values = data_range["f107_obs"].astype(float) 
     
     # --- Plot ---
-    plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(10, 5))
     scatter = plt.scatter(
         times,
-        kp_values,
-        c=kp_values,
+        values,
+        c=values,
         cmap="RdYlGn_r",  # reversed so low=green, high=red
         s=100,
         edgecolor="k",
@@ -88,69 +127,20 @@ def plot_kp(time_frame):
     
     # Colorbar
     cbar = plt.colorbar(scatter)
-    cbar.set_label("Kp Index", fontsize=12)
+    cbar.set_label(var_name, fontsize=12)
     
     # Axes and formatting
-    plt.title(f"Kp Index — Past {time_frame}", fontsize=14)
-    plt.ylabel("Kp Value")
+    plt.title(f"{var_name} — {time_frame}", fontsize=14)
+    plt.ylabel(var_name)
     plt.xlabel("Date (UTC)")
-    plt.ylim(0, 9)
+    if "Kp" in var_name:
+        plt.ylim(0, 9)
     plt.grid(True, linestyle="--", alpha=0.5)
     
     # Format date axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()
-    plt.close()
-    
-        
 
+    return fig
 
-if __name__ == "__main__":
-    # --- Load and slice the data ---
-    sw_data = sw.celestrak.sw_daily(update=True)
-    
-    # Ensure datetime index
-    sw_data.index = pd.to_datetime(sw_data.index)
-    
-    current_datetime = datetime.utcnow()
-    one_week_ago = current_datetime - timedelta(weeks=1)
-    one_month_ago = current_datetime - timedelta(days=30)
-    
-    # Filter data for the last week
-    data_range = sw_data.loc[one_month_ago:current_datetime]
-    
-    # Extract datetime and Kp
-    times = data_range.index
-    kp_values = data_range["Kp0"].astype(float)  # make sure it's numeric
-    
-    # --- Plot ---
-    plt.figure(figsize=(10, 5))
-    scatter = plt.scatter(
-        times,
-        kp_values,
-        c=kp_values,
-        cmap="RdYlGn_r",  # reversed so low=green, high=red
-        s=100,
-        edgecolor="k",
-        zorder=10
-    )
-    
-    # Colorbar
-    cbar = plt.colorbar(scatter)
-    cbar.set_label("Kp Index", fontsize=12)
-    
-    # Axes and formatting
-    plt.title("Kp Index — Past Week", fontsize=14)
-    plt.ylabel("Kp Value")
-    plt.xlabel("Date (UTC)")
-    plt.ylim(0, 9)
-    plt.grid(True, linestyle="--", alpha=0.5)
-    
-    # Format date axis
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-    plt.close()

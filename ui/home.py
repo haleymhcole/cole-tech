@@ -9,7 +9,7 @@ import streamlit as st
 import pandas as pd
 import datetime as dt
 import numpy as np
-from core import get_realtime_data
+# from core import get_realtime_data
 from ui import dashboard 
 
 def render():
