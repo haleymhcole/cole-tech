@@ -59,13 +59,14 @@ for tasks such as atmospheric density modeling for satellite operations.
 | Q              | Solar quiet-level X-ray background index         |
 
 """
-
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 import spaceweather as sw  
 import pandas as pd 
 import streamlit as st
+import numpy as np
+from core import forecast
 
 def get_data():
     # --- Load and slice the data ---
@@ -76,7 +77,8 @@ def get_data():
     
     agos = [current_datetime - timedelta(weeks=1),
             current_datetime - timedelta(days=30),
-            current_datetime - timedelta(days=365)]
+            current_datetime - timedelta(days=365),
+            current_datetime - timedelta(days=90)]
     
     # kp_index = current_data["Kp0"].astype(float)
     Apavg = current_data["Apavg"].astype(float)
@@ -102,8 +104,15 @@ def get_data():
 
     
 def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
-    # Filter data for the last week
-    data_range = sw_data.loc[ago:current_datetime]
+    if time_frame == "Forecasting":
+        # data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime + timedelta(days=30)]
+        # data_range[var_name] = np.nan
+        data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime]
+        trendline = forecast.forecast(data_range.index, data_range[var_name])
+        x = data_range = sw_data.loc[current_datetime - timedelta(days=90):current_datetime + timedelta(days=30)].index
+    else:
+        # Filter data for the time frame of interest.
+        data_range = sw_data.loc[ago:current_datetime]
     
     # Extract datetime and y-values.
     times = data_range.index
@@ -132,6 +141,10 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     if "Kp" in title:
         plt.ylim(0, 9)
     plt.grid(True, linestyle="--", alpha=0.5)
+    
+    if time_frame == "Forecasting":
+        plt.plot(x, trendline(x), label='Trendline')
+    
     
     # Format date axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))

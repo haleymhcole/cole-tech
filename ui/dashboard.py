@@ -22,11 +22,10 @@ def render():
     # ---------------------------
     sw_data, current_datetime, agos, now_properties = real_time.get_data()
     
-    
     # ---------------------------
     #     QUICK STATUS CARDS
     # ---------------------------
-    st.header("Current Space Weather Status")
+    st.header("☼ Current Space Weather Status")
     
     # Replace these placeholder values with your live data pipeline
     # kp_index = 3
@@ -56,15 +55,12 @@ def render():
     
     st.markdown("---")
     
-    
-    
-    
     # ---------------------------
     #     MINI PLOT SECTION
     # ---------------------------
+    st.header("⏱︎ Real-Time Properties")
     selected_option = st.selectbox("Choose an option:", now_properties.keys())
-    st.header(selected_option)
-    tab_names = ["Past Week", "Past Month", "Past Year"]
+    tab_names = ["Past Week", "Past Month", "Past Year", "Forecasting"]
     tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
     for t, time_frame in enumerate(tab_names):
         tab = tabs_dict[t]

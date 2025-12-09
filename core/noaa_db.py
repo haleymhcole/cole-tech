@@ -10,7 +10,7 @@ import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+# from mpl_toolkits.basemap import Basemap
 import pandas as pd
 import xarray as xr
 from matplotlib.colors import LogNorm
@@ -227,11 +227,11 @@ yr = 2025
 mo = 10
 da = 4
 
-data_file = os.path.join("Data", "swpc_wsaenlil_bkg_20251004_0000", "wsa_enlil.mrid00000000.suball.nc") # BG#data_file = os.path.join("Data", "swpc_wsaenlil_cme_20251003_1036", "wsa_enlil.mrid00057579.suball.nc") # CME
+data_file = os.path.join("dnata", "swpc_wsaenlil_bkg_20251004_0000", "wsa_enlil.mrid00000000.suball.nc") # BG#data_file = os.path.join("Data", "swpc_wsaenlil_cme_20251003_1036", "wsa_enlil.mrid00057579.suball.nc") # CME
 if os.path.exists(data_file):
     ds = read_nc(data_file)
 else:
-    print("Data file does not exist:", data_file)
+    raise Exception(f"Data file does not exist: {data_file}")
 
 # data_path = os.path.join("Data", f"swpc_wsaenlil_bkg_{yr:02d}{mo:02d}{da:02d}_0000")
 # if os.path.exists(data_path):

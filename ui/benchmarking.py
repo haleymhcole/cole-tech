@@ -35,8 +35,12 @@ def render():
     
     start = st.date_input("Start Date")
     end = st.date_input("End Date")
+    
+    if start > end:
+        st.error("Please select appropriate start and end dates.")
+    
     st.write("Upload comparison data:")
-    st.file_uploader("Upload CSV", type=["csv"])
+    # st.file_uploader("Upload CSV", type=["csv"])
     
     # CME Database
     ROOT = get_root()
@@ -48,10 +52,7 @@ def render():
     cme_db['Mild Event'] = cme_db['Mild Event'].apply(swap_boolean_for_check)
     cme_db['Measurement Difficulties'] = cme_db['Measurement Difficulties'].apply(swap_boolean_for_check)
     
-    
-    num_rows = st.slider("Number of rows", 1, 100, 25)
-    np.random.seed(42)
-    data = []
+    # num_rows = st.slider("Number of rows", 1, 100, 25)
     
     config = {
     #     #"Preview": st.column_config.ImageColumn(),
