@@ -76,6 +76,7 @@ def get_data():
     sw_data.index = pd.to_datetime(sw_data.index)
     current_datetime = datetime.utcnow()
     current_data = sw_data.loc[:current_datetime].iloc[-1]
+    prev_data = sw_data.loc[:current_datetime].iloc[-2]
     
     agos = [current_datetime - timedelta(weeks=1),
             current_datetime - timedelta(days=30),
@@ -95,14 +96,16 @@ def get_data():
     bsrn = current_data['bsrn'].astype(float)
     rotd = current_data['rotd'].astype(float)
     
-    now_properties = {"Ap":("Apavg", Apavg),
-                      "Solar Flux (Adjusted to 1 AU)":("f107_adj", f107_observed), 
-                      "Cp":("Cp", Cp), 
-                      "Sunspot Number":("isn",isn),
-                      "Bartels Solar Rotation Number":("bsrn",bsrn),
-                      "Bartels Rotation Day":("rotd",rotd)}
+    properties = {"Ap":"Apavg",
+                      "Solar Flux (Adjusted to 1 AU)":"f107_adj", 
+                      "Cp":"Cp", 
+                      "Sunspot Number":"isn",
+                      "Bartels Solar Rotation Number":"bsrn",
+                      "Bartels Rotation Day":"rotd"}
+    
+    current_datetime = current_data.name
         
-    return sw_data, current_datetime, agos, now_properties
+    return sw_data, current_datetime, agos, properties
 
     
 def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
