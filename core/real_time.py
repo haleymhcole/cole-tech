@@ -150,32 +150,44 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
             )
     ))
 
+    height = 400
+
     # Add trendline if forecasting mode
-    if time_frame == "Forecasting" and trendline is not None and data_range is not None:
-        fig.add_trace(go.Scatter(
-            x=data_range.index,
-            y=trendline(np.arange(len(data_range))),
-            mode="lines",
-            line=dict(color="red", width=2),
-            name="Trendline",
-            #hovertemplate="<b>Trend:</b> %{trendline(np.arange(len(data_range)))}<extra></extra>"
-            hoverinfo="skip"  # don't hover on trendline
-        ))
+    if time_frame == "Forecasting":
+        height = 500
+        
+        if trendline is not None and data_range is not None:
+            fig.add_trace(go.Scatter(
+                x=data_range.index,
+                y=trendline(np.arange(len(data_range))),
+                mode="lines",
+                line=dict(color="red", width=2),
+                name="Trend",
+                #hovertemplate="<b>Trend:</b> %{trendline(np.arange(len(data_range)))}<extra></extra>"
+                hoverinfo="skip"  # don't hover on trendline
+            ))
+        
 
     # Layout (titles, labels, etc.)
     fig.update_layout(
         title=f"{title} — {time_frame}",
         xaxis_title="Date (UTC)",
         yaxis_title=title,
-        template="plotly_white",
+        template="ggplot2",
         hovermode="closest",     # ← important
-        height=400,
+        height=height,
         margin=dict(l=40, r=20, t=60, b=40),
+        legend=dict(
+            orientation="h",  # Horizontal orientation for better fit at the bottom
+            yanchor="bottom", # Anchor the legend to its bottom edge
+            y=-0.4,           # Adjust this value to position the legend below the plot area
+            xanchor="center", # Anchor the legend to its center horizontally
+            x=0.5             # Center the legend horizontally
+            )
     )
 
     if "Kp" in title:
         fig.update_yaxis(range=[0, 9])
-    
     
     # Format date axis
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
@@ -186,12 +198,12 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
     # On hover, only show data for closest point, not all data.
     #fig.update_layout(hovermode='closest')
     
-    # # Update the layout to position the legend at the bottom
+    # Update the layout to position the legend at the bottom
     # fig.update_layout(
     #     legend=dict(
     #         orientation="h",  # Horizontal orientation for better fit at the bottom
     #         yanchor="bottom", # Anchor the legend to its bottom edge
-    #         y=-0.3,           # Adjust this value to position the legend below the plot area
+    #         y=-0.5,           # Adjust this value to position the legend below the plot area
     #         xanchor="center", # Anchor the legend to its center horizontally
     #         x=0.5             # Center the legend horizontally
     #         )
