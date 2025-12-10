@@ -49,6 +49,7 @@ def report_env(env, color):
 
 green_to_red = ['#006837', '#4bb05c', '#b7e075', '#feffbe', '#fdbf6f', '#ea5739', '#a50026']
 
+
 def render():
     
     st.markdown("""
@@ -63,6 +64,7 @@ def render():
     </style>
     """, unsafe_allow_html=True)
     
+    pro_on = False
     
     # ---------------------------
     #     HERO SECTION
@@ -77,10 +79,11 @@ def render():
                  With Argos, your data comes alive through an operational insight engine with advanced analytics that revealing the why behind every number and turning raw metrics into actionable intelligence.
                  """)
     with c2:
-        pro_on = st.toggle("Paid Subscription")
+        # pro_on = st.toggle("Paid Subscription")
         argos_on = st.toggle("Activate Argos")
         
         if argos_on:
+            pro_on = True
             st.write("Insight engine activated ✨")
             #stars()
             #st.balloons()
@@ -98,7 +101,7 @@ def render():
     # ---------------------------
     #     QUICK STATUS CARDS
     # ---------------------------
-    st.header("☀️ Current Space Weather Status")
+    st.header("☀️ Current Space Weather Status") # +f': <span  style="color:{color}">**{env.upper()}**</span>'
     if pro_on:
         st.write("Data updated daily from CelesTrak, Helmholtz Centre, and NASA databases. Numbers below the property value refer to the change from yesterday's environment.")
     
