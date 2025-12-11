@@ -10,7 +10,7 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 from core import real_time
-from ui.animations import stars
+# from ui.animations import stars
 import os
 
 def report_env(env, color):
@@ -179,7 +179,7 @@ def render():
     with c2:
         selected_option = st.selectbox("Choose a property to analyze:", properties.keys())
     
-    st.space(size="medium") # Adds a medium-sized vertical space height="medium"
+    # st.space(size="medium") # Adds a medium-sized vertical space height="medium"
     
     c1, c2 = st.columns([1,2])
     with c1:
