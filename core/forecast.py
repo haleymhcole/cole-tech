@@ -54,27 +54,27 @@ if __name__ == "__main__":
     # x = np.arange(1, len(y)+1)
     # trendline = get_trend(x,y)
     
-from datetime import datetime, timedelta
-import spaceweather as sw  
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-sw_data = sw.celestrak.sw_daily(update=True)
-sw_data.index = pd.to_datetime(sw_data.index)
-current_datetime = datetime.utcnow()
-current_data = sw_data.loc[:current_datetime].iloc[-1]
-data = sw_data.loc[current_datetime - timedelta(weeks=45):current_datetime]
-plt.figure(figsize=(10,5))
-plt.scatter(data.index, data['isn'])
-
-y = data['isn']
-x = np.arange(1, len(y)+1)
-window_size = 30
-weights = np.ones(window_size) / window_size
-y_ave = np.convolve(y, weights, mode='valid')
-x_ave = x[15:-14]
-plt.plot(data.index[15:14], y_ave)
-
-plt.show()
-plt.close()
+    from datetime import datetime, timedelta
+    import spaceweather as sw  
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    sw_data = sw.celestrak.sw_daily(update=True)
+    sw_data.index = pd.to_datetime(sw_data.index)
+    current_datetime = datetime.utcnow()
+    current_data = sw_data.loc[:current_datetime].iloc[-1]
+    data = sw_data.loc[current_datetime - timedelta(weeks=45):current_datetime]
+    plt.figure(figsize=(10,5))
+    plt.scatter(data.index, data['isn'])
+    
+    y = data['isn']
+    x = np.arange(1, len(y)+1)
+    window_size = 30
+    weights = np.ones(window_size) / window_size
+    y_ave = np.convolve(y, weights, mode='valid')
+    x_ave = x[15:-14]
+    plt.plot(data.index[15:14], y_ave)
+    
+    plt.show()
+    plt.close()
 

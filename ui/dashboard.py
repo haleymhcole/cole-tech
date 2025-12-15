@@ -71,22 +71,7 @@ def render():
     # ---------------------------
     st.title("Dashboard")
     
-    c1, c2, c3 = st.columns([3,2,1])
-    with c1:
-        st.header("🌟 Insight Engine: Argos")
-        st.write("""
-                 ***Flip Argos ON to transform your workspace into a deep diagnostic suite.***\n
-                 With Argos, your data comes alive through an operational insight engine with advanced analytics that revealing the why behind every number and turning raw metrics into actionable intelligence.
-                 """)
-    with c2:
-        # pro_on = st.toggle("Paid Subscription")
-        argos_on = st.toggle("Activate Argos")
-        
-        if argos_on:
-            pro_on = True
-            st.write("Insight engine activated ✨")
-            #stars()
-            #st.balloons()
+    argos_on = st.session_state.argos_on
     
     # ---------------------------
     #     GET REALTIME DATA

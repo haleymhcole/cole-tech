@@ -31,6 +31,9 @@ st.set_page_config(
     layout="wide"
     )
 
+if "argos_on" not in st.session_state:
+    st.session_state.argos_on = False
+
 #st.title("Real-Time Space Weather Demo")
 
 st.markdown(
@@ -121,6 +124,7 @@ SECOND_PAGES = {
     "Help":help_docs,
 }
 
+
 # --------------------------
 # SECONDARY OPTIONS
 # --------------------------
@@ -137,6 +141,55 @@ for p in SECOND_PAGES:
         st.session_state.active_menu = p
     
 st.sidebar.markdown("---")
+
+
+
+c1, c2, c3 = st.columns([3,2,1])
+with c1:
+    st.sidebar.header("🌟 Insight Engine: Argos")
+    # # Markdown is supported within the help text
+    # multi_line_help = """
+    # **Markdown is supported!**
+    # * Use bullet points
+    # * Add **bold** or *italics*
+    # """
+    # st.number_input("Select a number", help=multi_line_help)
+    
+    st.sidebar.write("""
+             ***Flip Argos ON to transform your workspace into a deep diagnostic suite.***\n
+             """)
+
+with c2:
+    argos_help = "With Argos, your data comes alive through an operational insight engine with advanced analytics that revealing the why behind every number and turning raw metrics into actionable intelligence."
+    
+    # pro_on = st.toggle("Paid Subscription")
+    argos_on = st.sidebar.toggle("Activate Argos", help=argos_help)
+    
+    if argos_on:
+        pro_on = True
+        st.sidebar.write("Insight engine activated ✨")
+        #stars()
+        st.balloons()
+        
+        if "argos_on" not in st.session_state:
+            st.session_state.argos_on = True
+        
+
+# # Initialize session state variable if it doesn't exist
+# if "slider_value" not in st.session_state:
+#     st.session_state.slider_value = 50
+
+# # A widget can be linked to the session state using the 'key' argument
+# st.slider(
+#     "Select a value",
+#     min_value=0,
+#     max_value=100,
+#     key="slider_value" # Links the widget value to st.session_state.slider_value
+# )
+
+# # You can access the value anywhere in your script
+# st.write("Current saved value:", st.session_state.slider_value)
+
 
 
 menu_selection = st.session_state.active_menu
