@@ -124,6 +124,19 @@ SECOND_PAGES = {
     "Help":help_docs,
 }
 
+def init_session_state():
+    defaults = {
+        "active_menu": "Home",
+        # "theme": "dark",
+        # "output_dir": None,
+        # "units": "metric",
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+init_session_state()
+
 
 # --------------------------
 # SECONDARY OPTIONS
@@ -191,12 +204,17 @@ with c2:
 # st.write("Current saved value:", st.session_state.slider_value)
 
 
-
-menu_selection = st.session_state.active_menu
-# choice = st.sidebar.selectbox("Menu", list(PAGES.keys()))
 all_pages = MAIN_PAGES | SECOND_PAGES
-page = all_pages[menu_selection]
-page.render()
+
+
+# menu_selection = st.session_state.active_menu
+# # choice = st.sidebar.selectbox("Menu", list(PAGES.keys()))
+# page = all_pages[menu_selection]
+# page.render()
+
+for page_name in all_pages:
+    if st.session_state.active_menu == page_name:
+        all_pages[page_name].render()
 
 # st.sidebar.markdown("---")
 
