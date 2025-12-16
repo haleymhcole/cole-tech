@@ -82,11 +82,43 @@ def render():
     prev_data = sw_data.loc[:current_datetime].iloc[-2]
     
     Ap = current_data[properties['Ap']]
+    Ap_env_label, Ap_env_color, Ap_env_caption = real_time.get_Ap_env(Ap)
+    
+    f107 = current_data[properties['Solar Flux (Adjusted to 1 AU)']]
+    f107_env_label, f107_env_color, f107_env_caption = real_time.get_f107_env(f107)
     
     # ---------------------------
     #     QUICK STATUS CARDS
     # ---------------------------
-    st.header("☀️ Current Space Weather Status") # +f': <span  style="color:{color}">**{env.upper()}**</span>'
+    if st.session_state.argos_on:
+        st.markdown(
+        f"""
+        <h2>
+            🌎 Geomagnetic activity level:
+            <span style="color:{Ap_env_color}; font-weight:600;">
+                {Ap_env_label.upper()}
+            </span>
+        </h2>
+        """,
+        unsafe_allow_html=True
+        )
+            
+        st.markdown(
+        f"""
+        <h2>
+            ☀️ Solar activity level:
+            <span style="color:{f107_env_color}; font-weight:600;">
+                {f107_env_label.upper()}
+            </span>
+        </h2>
+        """,
+        unsafe_allow_html=True
+        )
+
+    else:
+        st.header("☀️ Current Space Weather Status") 
+    
+    
     if pro_on:
         st.write("Data updated daily from CelesTrak, Helmholtz Centre, and NASA databases. Numbers below the property value refer to the change from yesterday's environment.")
     
@@ -100,12 +132,15 @@ def render():
     c1, c2, c3 = st.columns(3)
     with c1:
         st.metric("Ap Index", Ap, delta=prev_data[properties['Ap']] if pro_on else None)
+        if st.session_state.argos_on:
+            st.write(Ap_env_caption)
         st.metric("Geomagnetic Activity Cp Index (0–2.5)", current_data[properties['Cp']], delta=prev_data[properties['Cp']] if pro_on else None)
     
     with c2:
         st.metric("Sunspot Number", current_data[properties['Sunspot Number']], delta=prev_data[properties['Sunspot Number']] if pro_on else None)
         st.metric("Solar Flux (F10.7)", current_data[properties['Solar Flux (Adjusted to 1 AU)']], delta=prev_data[properties['Solar Flux (Adjusted to 1 AU)']] if pro_on else None)
-        
+        if st.session_state.argos_on:
+            st.write(f107_env_caption)
         
     with c3:
         st.metric("Bartels Solar Rotation Number", current_data[properties['Bartels Solar Rotation Number']], delta=prev_data[properties['Bartels Solar Rotation Number']] if pro_on else None)

@@ -216,3 +216,37 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
 
     return fig
 
+
+green_to_red = ['#006837', '#4bb05c', '#b7e075', '#feffbe', '#fdbf6f', '#ea5739', '#a50026']
+
+def get_Ap_env(Ap):
+    # Describe the Earth's environment based on Ap index.
+    if Ap < 15:
+        return "Quiet", green_to_red[0], "Very low activity, minimal impact."
+    elif Ap < 48:
+        return "Active", green_to_red[1], "Minor disturbances, potentially visible auroras at high latitudes."
+    elif Ap < 132:
+        return "Moderate", green_to_red[2], "Noticeable geomagnetic changes, minor power grid fluctuations possible."
+    elif Ap < 207:
+        return "Strong", green_to_red[3], "Significant geomagnetic storms, increased radio blackouts, potential for widespread power grid issues."
+    elif Ap < 294:
+        return "Severe", green_to_red[4], "Major storms, voltage control problems in power systems, transformer damage, potential for grid collapse."
+    elif Ap < 388:
+        return "Extreme", green_to_red[5], "Widespread voltage control issues, large power grid failures, protective systems struggle."
+    else:
+        return "Extreme+", green_to_red[6], "Maximum severity, extreme grid instability, widespread blackouts, critical infrastructure risk."
+
+f107_colors = ['#006837', '#b7e075', '#fdbf6f', '#a50026']
+
+def get_f107_env(f107):
+    # Describe the sun's environment based on F10.7cm.
+    if f107 < 80:
+        return "Quiet", f107_colors[0], "Quiet solar conditions."
+    elif f107 < 100:
+        return "Nominal", f107_colors[1], "Keep an eye out."
+    elif f107 < 200:
+        return "Moderate", f107_colors[2], "Common during ascending/descending phases or solar maximum of a typical solar cycle."
+    else:
+        return "Severe", f107_colors[3], "The sun is very active. Likely from large solar flares, producing extreme but temporary bursts of solar flux."
+
+
