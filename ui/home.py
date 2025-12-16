@@ -59,7 +59,11 @@ def render():
     
     df_features = pd.DataFrame(features)
     
-    st.table(df_features)
+    try:
+        st.table(df_features)
+    except:
+        print("*"*10)
+        print(df_features)
     
     st.markdown(
         "<br><center><a href='#' style='font-size:18px;'>See Full Feature List →</a></center><br>",

@@ -114,7 +114,7 @@ MAIN_PAGES = {
     "Home": home,
     "Dashboard": dashboard,
     "Nowcasting": nowcasting,
-    "Forecasting": forecasting,
+    #"Forecasting": forecasting,
     "Historical Benchmarking": benchmarking,
 }
 
