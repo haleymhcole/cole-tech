@@ -45,7 +45,8 @@ def render():
     
     features = {
         "Feature": [
-            "Realtime indices (Kp, F10.7, SSN)",
+            "Realtime Environment Properties (Kp, F10.7, SSN)",
+            "Monthly, Weekly, Yearly Environment Tracking",
             "CME Alerts",
             "Detailed Nowcasting Models",
             "Forecasting Tools (cycle phase, rise/decay)",
@@ -53,8 +54,8 @@ def render():
             "Custom Threshold Alerts",
             "Exportable plots/data",
         ],
-        "Free": ["✓", "✓", "—", "—", "—", "—", "—"],
-        "Pro": ["✓", "✓", "✓", "✓", "✓", "✓", "✓"],
+        "Free": ["✓", "✓", "—", "—", "—", "—", "—", "—"],
+        "Pro": ["✓", "✓", "✓", "✓", "✓", "✓", "✓", "✓"],
     }
     
     df_features = pd.DataFrame(features)
