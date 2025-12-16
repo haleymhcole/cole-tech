@@ -64,14 +64,14 @@ def render():
     </style>
     """, unsafe_allow_html=True)
     
-    pro_on = False
+    pro_on = st.session_state.argos_on
     
     # ---------------------------
     #     HERO SECTION
     # ---------------------------
     st.title("Dashboard")
     
-    argos_on = st.session_state.argos_on
+    #argos_on = st.session_state.argos_on
     
     # ---------------------------
     #     GET REALTIME DATA
@@ -114,7 +114,7 @@ def render():
     # with c4:
     #     st.metric("Latest CME", latest_cme)
     
-    if argos_on:
+    if st.session_state.argos_on:
         c1, c2 = st.columns([1,20])
         
         with c1:

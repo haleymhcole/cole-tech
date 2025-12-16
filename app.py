@@ -176,16 +176,15 @@ with c2:
     argos_help = "With Argos, your data comes alive through an operational insight engine with advanced analytics that revealing the why behind every number and turning raw metrics into actionable intelligence."
     
     # pro_on = st.toggle("Paid Subscription")
-    argos_on = st.sidebar.toggle("Activate Argos", help=argos_help)
+    argos_on_toggle = st.sidebar.toggle("Activate Argos", help=argos_help)
     
-    if argos_on:
+    if argos_on_toggle:
         pro_on = True
         st.sidebar.write("Insight engine activated ✨")
         #stars()
         st.balloons()
         
-        if "argos_on" not in st.session_state:
-            st.session_state.argos_on = True
+        st.session_state.argos_on = True
         
 
 
