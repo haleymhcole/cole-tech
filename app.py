@@ -25,9 +25,11 @@ from palette import PALETTE
 from theme_sync import sync_theme
 sync_theme()
 
+favicon = os.path.join("assets", "favicon.png")
+
 st.set_page_config(
     page_title="Space Weather Demo", 
-    page_icon=os.path.join("assets", "favicon.png"),
+    page_icon=favicon,
     layout="wide"
     )
 
@@ -100,9 +102,59 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-logo_file = os.path.join("assets", "logo.png")
-st.sidebar.image(logo_file) #, caption='Equinox Technologies logo')
+# import base64
+# def get_img_with_href(local_img_path, target_url):
+#     # Encode local image to base64 string
+#     with open(local_img_path, "rb") as f:
+#         data = f.read()
+#     encoded = base64.b64encode(data).decode()
 
+#     # Construct the Markdown with embedded HTML for the link
+#     img_format = os.path.splitext(local_img_path)[-1].replace('.', '')
+#     markdown = f'<a href="{target_url}"><img src="data:image/{img_format};base64,{encoded}" width="200"></a>'
+#     return markdown
+
+home_url = "http://localhost:8501"
+
+tech_logo_file = os.path.join("assets", "logo.png")
+app_logo_file = os.path.join("assets", "SWAN-logo.png")
+
+#st.sidebar.markdown(get_img_with_href(app_logo_file, home_url), unsafe_allow_html=True)
+#st.write("Click the image above to visit the page!")
+
+
+# def clickable_image_in_same_tab(image_url, target_url, caption=None):
+#     """
+#     Displays a clickable image that opens a link in the same browser tab.
+
+#     Args:
+#         image_url (str): The URL or path to the image.
+#         target_url (str): The URL to navigate to when the image is clicked.
+#         caption (str, optional): A caption for the image. Defaults to None.
+#     """
+#     html_code = f"""
+#     <a href="{target_url}" target="_self">
+#         <img src="{image_url}" alt="Clickable Image" style="cursor: pointer; max-width: 100%; height: auto;">
+#     </a>
+#     """
+#     st.markdown(html_code, unsafe_allow_html=True)
+#     if caption:
+#         st.caption(caption)
+
+# # Example usage with an external image and link:
+# clickable_image_in_same_tab(app_logo_file, home_url, caption="Visit Streamlit website")
+
+
+
+st.sidebar.image(app_logo_file) #, caption='Equinox Technologies logo')
+
+# # Add the logo to the sidebar and make it clickable
+# st.logo(
+#     image=app_logo_file,  # Replace with the path to your logo file
+#     link=home_url,                 # The URL to navigate to when clicked
+#     icon_image=favicon, # Optional: A smaller icon for when sidebar is closed
+#     size='large'
+# )
 
 # # Start on home page.
 # home.render()
@@ -113,9 +165,9 @@ st.sidebar.subheader("Main Tools")
 MAIN_PAGES = {
     "Home": home,
     "Dashboard": dashboard,
-    "Nowcasting": nowcasting,
+    #"Nowcasting": nowcasting,
     #"Forecasting": forecasting,
-    "Historical Benchmarking": benchmarking,
+    #"Historical Benchmarking": benchmarking,
 }
 
 SECOND_PAGES = {
@@ -181,8 +233,10 @@ with c2:
     if argos_on_toggle:
         pro_on = True
         st.sidebar.write("Insight engine activated ✨")
-        #stars()
-        st.balloons()
+        
+        if not st.session_state.argos_on:
+            # Only show balloons if changing the status.
+            st.balloons()
         
         st.session_state.argos_on = True
         
@@ -195,6 +249,7 @@ for page_name in all_pages:
         all_pages[page_name].render()
 
 
-
+st.sidebar.markdown("---")
+st.sidebar.image(tech_logo_file) #, caption='Equinox Technologies logo')
 
 

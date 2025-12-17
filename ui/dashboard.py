@@ -69,7 +69,7 @@ def render():
     # ---------------------------
     #     HERO SECTION
     # ---------------------------
-    st.title("Dashboard")
+    # st.title("Dashboard")
     
     #argos_on = st.session_state.argos_on
     

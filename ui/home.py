@@ -19,8 +19,10 @@ def render():
     st.title("Space Weather Insights")
     st.subheader("Real-Time Monitoring, Smarter Forecasting")
     
+    st.write("The SWAN (Space Weather and Atmospheric eNvironments) toolkit is an adaptive, user-driven space weather and atmospheric intelligence platform that integrates real-time and historical data to translate complex environmental conditions into clear, actionable operational insight.")
+    
     st.write(
-        "Track sunspots, geomagnetic activity, solar flux, and CME alerts — all in one place. "
+        "Track sunspots, geomagnetic activity, solar flux, and CME alerts...all in one place. "
         "Built for researchers, space operators, hobbyists, and the simply curious."
     )
     
