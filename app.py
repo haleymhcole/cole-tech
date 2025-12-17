@@ -160,7 +160,7 @@ st.sidebar.image(app_logo_file) #, caption='Equinox Technologies logo')
 # home.render()
 
 
-st.sidebar.subheader("Main Tools")
+# st.sidebar.subheader("Main Tools")
 
 MAIN_PAGES = {
     "Home": home,
@@ -189,23 +189,37 @@ def init_session_state():
 
 init_session_state()
 
-
 # --------------------------
 # SECONDARY OPTIONS
 # --------------------------
 
-
-for p in MAIN_PAGES:
-    if st.sidebar.button(p): # , type='primary'
-        st.session_state.active_menu = p
         
 
-st.sidebar.subheader("More")
-for p in SECOND_PAGES:
-    if st.sidebar.button(p): # , type='tertiary'
-        st.session_state.active_menu = p
+# # Define options for the dropdown
+# options = ["Option A", "Option B", "Option C"]
+
+# # Create the selectbox
+# selection = st.sidebar.selectbox("Choose an action:", options)
+
+# # Use an if/elif/else block to handle the selection
+# if selection == "Option A":
+#     st.sidebar.write("You selected Option A! Performing action A...")
+#     st.sidebar.button("Action A Button") # This button appears after selection
+# elif selection == "Option B":
+#     st.sidebar.write("You selected Option B! Performing action B...")
+#     st.sidebar.button("Action B Button")
+# elif selection == "Option C":
+#     st.sidebar.write("You selected Option C! Performing action C...")
+#     st.sidebar.button("Action C Button")
     
-st.sidebar.markdown("---")
+
+# st.page_link(home.render(), label="Home", icon="🏠") 
+# st.page_link("ui//settings.py", label="Settings", icon="⚙️") 
+# st.page_link("ui//help_doc.py", label="Help", icon="📄") 
+#st.markdown("Check out the official [Streamlit documentation](docs.streamlit.io)!")
+
+    
+#st.sidebar.markdown("---")
 
 
 
@@ -220,12 +234,12 @@ with c1:
     # """
     # st.number_input("Select a number", help=multi_line_help)
     
-    st.sidebar.write("""
-             ***Flip Argos ON to transform your workspace into a deep diagnostic suite.***\n
-             """)
+    # st.sidebar.write("""
+    #          ***Flip Argos ON to transform your workspace into a deep diagnostic suite.***\n
+    #          """)
 
 with c2:
-    argos_help = "With Argos, your data comes alive through an operational insight engine with advanced analytics that revealing the why behind every number and turning raw metrics into actionable intelligence."
+    argos_help = "With Argos, your data comes alive through an operational insight engine with advanced analytics that reveals the why behind every number and turning raw metrics into actionable intelligence."
     
     # pro_on = st.toggle("Paid Subscription")
     argos_on_toggle = st.sidebar.toggle("Activate Argos", help=argos_help)
@@ -240,6 +254,20 @@ with c2:
         
         st.session_state.argos_on = True
         
+
+st.sidebar.markdown("---")
+
+for p in MAIN_PAGES:
+    if st.sidebar.button(p): # , type='primary'
+        st.session_state.active_menu = p
+
+#st.sidebar.subheader("More")
+for p in SECOND_PAGES:
+    if st.sidebar.button(p): # , type='tertiary'
+        st.session_state.active_menu = p
+
+
+
 
 
 all_pages = MAIN_PAGES | SECOND_PAGES
