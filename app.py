@@ -172,7 +172,7 @@ MAIN_PAGES = {
 
 SECOND_PAGES = {
     "⚙️ Settings": settings,
-    "🚀 Submit Feedback":feedback,
+    "💬 Submit Feedback":feedback,
     "📄 Help":help_docs,
 }
 

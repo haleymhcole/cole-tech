@@ -173,7 +173,7 @@ def plot(sw_data, current_datetime, time_frame, ago, title, var_name):
 
     # Layout (titles, labels, etc.)
     fig.update_layout(
-        title=f"{title} — {time_frame}",
+        title=f"{title} — {time_frame}" if "Historical" not in time_frame else "",
         xaxis_title="Date (UTC)",
         yaxis_title=title,
         template="ggplot2",

@@ -41,73 +41,53 @@ def render():
     #     st.header("🚀 In-Depth Analysis")
         
     # with c2:
-        
     
     # st.space(size="medium") # Adds a medium-sized vertical space height="medium"
     
-    c1, c2 = st.columns([1,2])
+# =============================================================================
+#     Get mission timeline 
+# =============================================================================
+    c1, c2, c3 = st.columns([1,1,1])
     with c1:
-        #st.subheader("⏱️ Real-Time Properties")
-        selected_option = st.selectbox("Choose a property to analyze:", properties.keys())
-        st.write("**Track how key environmental variables evolve over time, and explore short-term to seasonal trends using the interactive plots on the right.**")
-        # Text for article/user-guide: This section provides continuously updated environmental and space-weather indicators relevant to satellite operators, atmospheric scientists, and mission planners. 
-        st.write("Select a time window to analyze recent behavior, identify anomalies, and compare today’s conditions with historical context.")
-        
-        
-        with st.expander("❓ How to Use This Panel"):
-            st.markdown("""
-            **Welcome to the Real-Time Properties Dashboard**  
-            - Select a time frame in the left panel (e.g., Past Month).
-            - The plot on the right will update automatically to reflect the chosen time span and dataset resolution.
-            - Hover over the plot for details.
-            - Use the download button under the plot to save the data (Pro-only).
-            """)
-            
-            st.markdown("""
-            #### Past Week
-            Ideal for short-term operational awareness.
-            Use this view to detect recent disturbances—such as geomagnetic spikes or rapid density changes—that could affect orbit propagation or drag calculations.
-            
-            #### Past Month
-            Useful for medium-scale monitoring and pattern recognition.
-            This window highlights gradual shifts in solar or atmospheric conditions that may indicate the onset of storms or long-period trends.
-        
-            #### Past Year
-            Explore broader behavior across seasons, solar rotation periods, or extended quiet/active intervals.
-            This perspective helps contextualize today’s environment within the larger solar cycle.
-            
-            #### Why This Matters
-            Understanding how these properties change across multiple time scales allows operators to:
-            - anticipate drag changes,
-            - evaluate risk conditions,
-            - improve scheduling and uplink/downlink planning,
-            - correlate anomalies with environmental triggers, and
-            - support long-term system performance assessment.
-            """)
-    
+        st.header("Mission Info")
     with c2:
-        tab_names = ["Past Week", "Past Month", "Past Year"]
-        tabs_dict = st.tabs(tab_names) # tab1, tab2, tab3
-        for t, time_frame in enumerate(tab_names):
-            tab = tabs_dict[t]
-            with tab:
-                #st.subheader(f"Kp Index -- {tab_name}")
-                fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, properties[selected_option])
-                #st.pyplot(fig)
-                st.plotly_chart(fig, use_container_width=True)
+        default_start = dt.datetime(2003, 10, 25, 16, 45) 
+        start_mission = st.datetime_input("Mission Start:", default_start)
+    with c3:
+        default_end = dt.datetime(2003, 11, 5, 16, 45) 
+        end_mission = st.datetime_input("Mission End:", default_end)
     
-    start = st.date_input("Start Date")
-    end = st.date_input("End Date")
-    
-    if start > end:
+    if start_mission > end_mission:
         st.error("Please select appropriate start and end dates.")
+        
+    st.markdown("---")
     
-    st.write("Upload comparison data:")
+# =============================================================================
+#     Plot
+# =============================================================================
+    st.markdown("<h3 style='text-align: center; color: black;'>Geomagnetic Activity During Mission</h3>", unsafe_allow_html=True)
+    selected_option = "Ap"
+    fig = real_time.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
+    st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("<h3 style='text-align: center; color: black;'>Solar Activity During Mission</h3>", unsafe_allow_html=True)
+    selected_option = "Solar Flux (Adjusted to 1 AU)"
+    fig = real_time.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
+    st.plotly_chart(fig, use_container_width=True)
+    
+    
+    
+    
+# =============================================================================
+#     DB
+# =============================================================================
+    st.markdown("<h3 style='text-align: center; color: black;'>Reported CME During Mission</h3>", unsafe_allow_html=True)
+    
     # st.file_uploader("Upload CSV", type=["csv"])
     
     # CME Database
     ROOT = get_root()
-    cme_db_file = os.path.join(ROOT, "data", "CDAW_CME_Catalog_Processed.csv")
+    cme_db_file = os.path.join(ROOT, "core", "data", "CDAW_CME_Catalog_Processed.csv")
     cme_db = pd.read_csv(cme_db_file)
     cme_db.drop(['2nd-order Speed at final height [km/s]',
                  '2nd-order Speed at 20 Rs [km/s]'], axis=1, inplace=True)
@@ -122,9 +102,20 @@ def render():
     #     "Linear Speed [km/s]": st.column_config.ProgressColumn(),
     }
     
-    if st.toggle("Enable editing"):
-        edited_data = st.data_editor(cme_db, column_config=config, use_container_width=True)
-    else:
-        st.dataframe(cme_db, column_config=config, use_container_width=True)
+    # Ensure the Date column is datetime type
+    cme_db['Date'] = pd.to_datetime(cme_db['Date'])
+    
+    # Create a mask for rows within the date range (inclusive)
+    mask = (cme_db['Date'] >= start_mission) & (cme_db['Date'] <= end_mission)
+    
+    # Apply the mask to the DataFrame
+    truncated_df = cme_db.loc[mask]
+    
+    st.dataframe(truncated_df, column_config=config, use_container_width=True)
+    
+    # if st.toggle("Enable editing"):
+    #     edited_data = st.data_editor(cme_db, column_config=config, use_container_width=True)
+    # else:
+    #     st.dataframe(cme_db, column_config=config, use_container_width=True)
 
 

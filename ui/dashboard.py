@@ -152,7 +152,7 @@ def render():
             st.image(os.path.join("assets", "SWAN-icon.png"))
         with c2:
             st.markdown('<p class="argos-style">SWAN Insight Engine</p>', unsafe_allow_html=True)
-            st.write(f"Geomagnetic environment is {Ap_env_label.lower()}. {Ap_env_caption} Solar flux environment is {f107_env_label.lower()}. {f107_env_caption}")
+            st.write(f"The geomagnetic environment is {Ap_env_label.lower()}. {Ap_env_caption} The solar flux environment is {f107_env_label.lower()}. {f107_env_caption}")
             
             #AP indices rank geomagnetic activity from quiet to severe, with Quiet (<15), Active (15-48), Moderate (80-132), Strong (132-207), Severe (207-294), Extreme (294-388), and Extreme+ (>=388), based on NOAA's Space Weather Scales, where higher numbers mean greater magnetic storm intensity affecting technology and power grids. 
             # if Ap < 15:
