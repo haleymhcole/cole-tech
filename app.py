@@ -23,9 +23,17 @@ from ui import help_docs
 # Style
 from palette import PALETTE
 from theme_sync import sync_theme
-sync_theme()
 
-favicon = os.path.join("assets", "favicon.png")
+@st.cache_resource
+def setup_session():
+    sync_theme()
+    favicon = os.path.join("assets", "favicon.png")
+    home_url = "http://localhost:8501"
+    tech_logo_file = os.path.join("assets", "logo.png")
+    app_logo_file = os.path.join("assets", "SWAN-logo.png")
+    return favicon, tech_logo_file, app_logo_file
+
+favicon, tech_logo_file, app_logo_file = setup_session()
 
 st.set_page_config(
     page_title="Space Weather Demo", 
@@ -114,10 +122,7 @@ st.markdown(
 #     markdown = f'<a href="{target_url}"><img src="data:image/{img_format};base64,{encoded}" width="200"></a>'
 #     return markdown
 
-home_url = "http://localhost:8501"
 
-tech_logo_file = os.path.join("assets", "logo.png")
-app_logo_file = os.path.join("assets", "SWAN-logo.png")
 
 #st.sidebar.markdown(get_img_with_href(app_logo_file, home_url), unsafe_allow_html=True)
 #st.write("Click the image above to visit the page!")
@@ -264,9 +269,6 @@ for p in MAIN_PAGES:
 for p in SECOND_PAGES:
     if st.sidebar.button(p): # , type='tertiary'
         st.session_state.active_menu = p
-
-
-
 
 
 all_pages = MAIN_PAGES | SECOND_PAGES

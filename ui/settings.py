@@ -25,7 +25,7 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 from pathlib import Path
-from config.settings_manager import get_settings, update_setting
+from config.settings_manager import get_settings, save_settings
 # from generate_config import update_toml
 
 def render():    
@@ -79,13 +79,13 @@ def render():
     
 
 
-    st.subheader("Units")
+    # st.subheader("Units")
 
-    units = st.radio(
-        "Units System",
-        ["metric", "imperial"],
-        index=["metric", "imperial"].index(settings["units"])
-    )
+    # units = st.radio(
+    #     "Units System",
+    #     ["metric", "imperial"],
+    #     index=["metric", "imperial"].index(settings["units"])
+    # )
     
 
     st.subheader("Appearance")
@@ -96,27 +96,29 @@ def render():
         index=["light", "dark"].index(settings["theme"])
     )
     
-    st.subheader("Advanced Settings")
-    plot_color = st.color_picker("Plotting Color")
+    # st.subheader("Advanced Settings")
+    # plot_color = st.color_picker("Plotting Color")
     
     if st.button("Save Settings"):
-        if data_format != settings["data_format"]:
-            update_setting("data_format", data_format)
+        # if data_format != settings["data_format"]:
+        #     update_setting("data_format", data_format)
         
-        if image_format != settings["image_format"]:
-            update_setting("image_format", image_format)
+        # if image_format != settings["image_format"]:
+        #     update_setting("image_format", image_format)
         
-        if video_format != settings["video_format"]:
-            update_setting("video_format", video_format)
+        # if video_format != settings["video_format"]:
+        #     update_setting("video_format", video_format)
         
-        if units != settings["units"]:
-            update_setting("units", units)
+        # if units != settings["units"]:
+        #     update_setting("units", units)
             
         # if theme != settings["theme"]:
         #     update_setting("theme", theme)
-        #     update_toml(theme)
-
-
+        #     # update_toml(theme)
+        
+        with st.spinner("Please wait..."):
+            save_settings(settings)
         st.success("Settings saved.")
-        st.rerun()
-        print("Settings saved.")
+        # st.rerun()
+        # print("Settings saved.")
+        # print("New settings:", settings)

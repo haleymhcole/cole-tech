@@ -72,7 +72,7 @@ def render():
                 #st.subheader(f"Kp Index -- {tab_name}")
                 fig = plotting.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, properties[selected_option])
                 #st.pyplot(fig)
-                st.plotly_chart(fig, use_container_width=True, theme=None)
+                st.plotly_chart(fig, width='stretch', theme=None)
                 
 
     if st.session_state.argos_on:
@@ -80,7 +80,7 @@ def render():
         if "Flux" in selected_option or "Sunspot" in selected_option or "Ap" in selected_option:
             st.subheader("SWAN Predictions")
             fig = plotting.plot(sw_data, current_datetime, "Forecasting", agos[2], selected_option, properties[selected_option])
-            st.plotly_chart(fig, use_container_width=True, theme=None)
+            st.plotly_chart(fig, width='stretch', theme=None)
             
     else:
         

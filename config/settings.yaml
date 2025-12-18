@@ -1,5 +1,5 @@
 data_format: excel
-image_format: jpeg
+image_format: tiff
 output_folder: outputs
 theme: dark
 units: metric
