@@ -11,24 +11,25 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 from core import real_time
+from core import plotting
+import plotly.io as pio
+pio.templates.default = "ggplot2"
 
 def render():
     # --- Main Page Content ---
-    st.title("Forecasting")
-    st.write("Select forecast window:")
+    st.title("📈 Forecasting")
+    st.subheader("Property Analysis")
     # window = st.selectbox("Window", ["1 Day", "3 Day", "7 Day", "30 Day"])
     
     sw_data, current_datetime, agos, properties = real_time.get_data() # TODO: Avoid repeating this function (currently also in dashboard.py for real-time stats) and benchmarking for historical
     
-    
+    st.write("Track how key environmental variables evolve over time, and explore short-term to seasonal trends using the interactive plots on the right. Select a time window to analyze recent behavior, identify anomalies, and compare today’s conditions with historical context.")
+    # Text for article/user-guide: This section provides continuously updated environmental and space-weather indicators relevant to satellite operators, atmospheric scientists, and mission planners. 
     
     c1, c2 = st.columns([1,2])
     with c1:
         #st.subheader("⏱️ Real-Time Properties")
         selected_option = st.selectbox("Choose a property to analyze:", properties.keys())
-        st.write("**Track how key environmental variables evolve over time, and explore short-term to seasonal trends using the interactive plots on the right.**")
-        # Text for article/user-guide: This section provides continuously updated environmental and space-weather indicators relevant to satellite operators, atmospheric scientists, and mission planners. 
-        st.write("Select a time window to analyze recent behavior, identify anomalies, and compare today’s conditions with historical context.")
         
         
         with st.expander("❓ How to Use This Panel"):
@@ -69,15 +70,19 @@ def render():
             tab = tabs_dict[t]
             with tab:
                 #st.subheader(f"Kp Index -- {tab_name}")
-                fig = real_time.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, properties[selected_option])
+                fig = plotting.plot(sw_data, current_datetime, time_frame, agos[t], selected_option, properties[selected_option])
                 #st.pyplot(fig)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, theme=None)
                 
-                
+
+    if st.session_state.argos_on:
     
-    st.subheader("📈 Forecasting")
-    selected_option = "Ap"
-    fig = real_time.plot(sw_data, current_datetime, "Forecasting", agos[2], selected_option, properties[selected_option])
-    st.plotly_chart(fig, use_container_width=True)
-    
-    
+        if "Flux" in selected_option or "Sunspot" in selected_option or "Ap" in selected_option:
+            st.subheader("SWAN Predictions")
+            fig = plotting.plot(sw_data, current_datetime, "Forecasting", agos[2], selected_option, properties[selected_option])
+            st.plotly_chart(fig, use_container_width=True, theme=None)
+            
+    else:
+        
+        st.subheader("Interested in advanced space weather and atmospheric environment forecasting? Go Premium!")
+        #st.write("")

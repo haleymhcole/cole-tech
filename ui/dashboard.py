@@ -13,6 +13,9 @@ from core import real_time
 # from ui.animations import stars
 import os
 
+import plotly.io as pio
+pio.templates.default = "ggplot2"
+
 def report_env(env, color):
     st.write(f'Environment is <span  style="color:{color}">**{env.upper()}**</span>.', unsafe_allow_html=True)
 

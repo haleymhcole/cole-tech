@@ -13,7 +13,11 @@ import numpy as np
 #from data import load_data
 # from get_paths import get_root
 from core import real_time
+from core import plotting
 import os
+
+import plotly.io as pio
+pio.templates.default = "ggplot2"
 
 from pathlib import Path
 
@@ -65,17 +69,20 @@ def render():
 # =============================================================================
 #     Plot
 # =============================================================================
-    st.markdown("<h3 style='text-align: center; color: black;'>Geomagnetic Activity During Mission</h3>", unsafe_allow_html=True)
-    selected_option = "Ap"
-    fig = real_time.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
-    st.plotly_chart(fig, use_container_width=True)
+    c1, c2 = st.columns([1,1])
+    with c1:
+        st.markdown("<h3 style='text-align: center; color: black;'>Geomagnetic Activity During Mission</h3>", unsafe_allow_html=True)
+        selected_option = "Ap"
+        fig = plotting.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
+        st.plotly_chart(fig, use_container_width=True, theme=None)
     
-    st.markdown("<h3 style='text-align: center; color: black;'>Solar Activity During Mission</h3>", unsafe_allow_html=True)
-    selected_option = "Solar Flux (Adjusted to 1 AU)"
-    fig = real_time.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
-    st.plotly_chart(fig, use_container_width=True)
+    with c2:
+        st.markdown("<h3 style='text-align: center; color: black;'>Solar Activity During Mission</h3>", unsafe_allow_html=True)
+        selected_option = "Solar Flux (Adjusted to 1 AU)"
+        fig = plotting.plot(sw_data, end_mission, "Historical Benchmarking", start_mission, selected_option, properties[selected_option])
+        st.plotly_chart(fig, use_container_width=True, theme=None)
     
-    
+    st.markdown("---")
     
     
 # =============================================================================

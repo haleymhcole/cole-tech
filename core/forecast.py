@@ -7,6 +7,8 @@ Created on Mon Dec  8 21:24:28 2025
 """
 import numpy as np
 from datetime import datetime, timedelta
+from pathlib import Path
+import os 
 
 def moving_average_np(data, window_size):
     """
@@ -40,6 +42,12 @@ def get_trend(y):
     quadratic_trend = np.poly1d(coefficients_quadratic)
     
     return quadratic_trend
+
+
+def forecast_f107():
+    ROOT = Path(__file__).resolve().parents[1]
+    f107_db = pd.read_excel(os.path.join(ROOT, "core", "data", "f10l7_db.xlsx"))
+    
 
 if __name__ == "__main__":
     # from core.real_time import get_data

@@ -219,8 +219,7 @@ init_session_state()
 #st.markdown("Check out the official [Streamlit documentation](docs.streamlit.io)!")
 
     
-#st.sidebar.markdown("---")
-
+st.sidebar.markdown("---")
 
 
 c1, c2, c3 = st.columns([3,2,1])
@@ -246,7 +245,7 @@ with c2:
     
     if argos_on_toggle:
         pro_on = True
-        st.sidebar.write("Insight engine activated ✨")
+        # st.sidebar.write("Insight engine activated ✨")
         
         if not st.session_state.argos_on:
             # Only show balloons if changing the status.
