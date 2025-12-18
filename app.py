@@ -163,17 +163,17 @@ st.sidebar.image(app_logo_file) #, caption='Equinox Technologies logo')
 # st.sidebar.subheader("Main Tools")
 
 MAIN_PAGES = {
-    "Home": home,
-    "Dashboard": dashboard,
-    #"Nowcasting": nowcasting,
-    #"Forecasting": forecasting,
-    #"Historical Benchmarking": benchmarking,
+    "🏠 Home": home,
+    "⏱️ Real-Time": dashboard,
+    # "Nowcasting": nowcasting,
+    "📈 Forecasting": forecasting,
+    "⌛ Historical": benchmarking,
 }
 
 SECOND_PAGES = {
-    "Settings": settings,
-    "Submit Feedback":feedback,
-    "Help":help_docs,
+    "⚙️ Settings": settings,
+    "🚀 Submit Feedback":feedback,
+    "📄 Help":help_docs,
 }
 
 def init_session_state():
