@@ -119,8 +119,8 @@ def render():
         st.header("☀️ Current Space Weather Status") 
     
     
-    if pro_on:
-        st.write("Data updated daily from CelesTrak, Helmholtz Centre, and NASA databases. Numbers below the property value refer to the change from yesterday's environment.")
+    st.write("Today's Environment:", )
+        # st.write("Data updated daily from CelesTrak, Helmholtz Centre, and NASA databases. Numbers below the property value refer to the change from yesterday's environment.")
     
     # Replace these placeholder values with your live data pipeline
     # kp_index = 3
@@ -132,15 +132,11 @@ def render():
     c1, c2, c3 = st.columns(3)
     with c1:
         st.metric("Ap Index", Ap, delta=prev_data[properties['Ap']] if pro_on else None)
-        if st.session_state.argos_on:
-            st.write(Ap_env_caption)
         st.metric("Geomagnetic Activity Cp Index (0–2.5)", current_data[properties['Cp']], delta=prev_data[properties['Cp']] if pro_on else None)
     
     with c2:
         st.metric("Sunspot Number", current_data[properties['Sunspot Number']], delta=prev_data[properties['Sunspot Number']] if pro_on else None)
         st.metric("Solar Flux (F10.7)", current_data[properties['Solar Flux (Adjusted to 1 AU)']], delta=prev_data[properties['Solar Flux (Adjusted to 1 AU)']] if pro_on else None)
-        if st.session_state.argos_on:
-            st.write(f107_env_caption)
         
     with c3:
         st.metric("Bartels Solar Rotation Number", current_data[properties['Bartels Solar Rotation Number']], delta=prev_data[properties['Bartels Solar Rotation Number']] if pro_on else None)
@@ -153,34 +149,33 @@ def render():
         c1, c2 = st.columns([1,20])
         
         with c1:
-            st.image(os.path.join("assets", "argos.png"))
+            st.image(os.path.join("assets", "SWAN-icon.png"))
         with c2:
-            st.markdown('<p class="argos-style">Argos Analysis</p>', unsafe_allow_html=True)
-            
-            #st.write("Argos Analysis: ")
+            st.markdown('<p class="argos-style">SWAN Insight Engine</p>', unsafe_allow_html=True)
+            st.write(f"Geomagnetic environment is {Ap_env_label.lower()}. {Ap_env_caption} Solar flux environment is {f107_env_label.lower()}. {f107_env_caption}")
             
             #AP indices rank geomagnetic activity from quiet to severe, with Quiet (<15), Active (15-48), Moderate (80-132), Strong (132-207), Severe (207-294), Extreme (294-388), and Extreme+ (>=388), based on NOAA's Space Weather Scales, where higher numbers mean greater magnetic storm intensity affecting technology and power grids. 
-            if Ap < 15:
-                report_env("Quiet", green_to_red[0])
-                st.write("Very low activity, minimal impact.")
-            elif Ap < 48:
-                report_env("Active", green_to_red[1])
-                st.write("Minor disturbances, potentially visible auroras at high latitudes.")
-            elif Ap < 132:
-                report_env("Moderate", green_to_red[2])
-                st.write("Noticeable geomagnetic changes, minor power grid fluctuations possible.")
-            elif Ap < 207:
-                report_env("Strong", green_to_red[3])
-                st.write("Significant geomagnetic storms, increased radio blackouts, potential for widespread power grid issues.")
-            elif Ap < 294:
-                report_env("Severe", green_to_red[4])
-                st.write("Major storms, voltage control problems in power systems, transformer damage, potential for grid collapse.")
-            elif Ap < 388:
-                report_env("Extreme", green_to_red[5])
-                st.write("Widespread voltage control issues, large power grid failures, protective systems struggle.")
-            else:
-                report_env("Extreme+", green_to_red[6])
-                st.write("Maximum severity, extreme grid instability, widespread blackouts, critical infrastructure risk.")
+            # if Ap < 15:
+            #     report_env("Quiet", green_to_red[0])
+            #     st.write("Very low activity, minimal impact.")
+            # elif Ap < 48:
+            #     report_env("Active", green_to_red[1])
+            #     st.write("Minor disturbances, potentially visible auroras at high latitudes.")
+            # elif Ap < 132:
+            #     report_env("Moderate", green_to_red[2])
+            #     st.write("Noticeable geomagnetic changes, minor power grid fluctuations possible.")
+            # elif Ap < 207:
+            #     report_env("Strong", green_to_red[3])
+            #     st.write("Significant geomagnetic storms, increased radio blackouts, potential for widespread power grid issues.")
+            # elif Ap < 294:
+            #     report_env("Severe", green_to_red[4])
+            #     st.write("Major storms, voltage control problems in power systems, transformer damage, potential for grid collapse.")
+            # elif Ap < 388:
+            #     report_env("Extreme", green_to_red[5])
+            #     st.write("Widespread voltage control issues, large power grid failures, protective systems struggle.")
+            # else:
+            #     report_env("Extreme+", green_to_red[6])
+            #     st.write("Maximum severity, extreme grid instability, widespread blackouts, critical infrastructure risk.")
            
             # The Ap index reflects the average intensity of Earth's magnetic field disturbances over a day, with higher values indicating more severe space weather
 

@@ -225,7 +225,7 @@ init_session_state()
 
 c1, c2, c3 = st.columns([3,2,1])
 with c1:
-    st.sidebar.header("🌟 Insight Engine: Argos")
+    st.sidebar.header("🌟 Insight Engine")
     # # Markdown is supported within the help text
     # multi_line_help = """
     # **Markdown is supported!**
@@ -239,10 +239,10 @@ with c1:
     #          """)
 
 with c2:
-    argos_help = "With Argos, your data comes alive through an operational insight engine with advanced analytics that reveals the why behind every number and turning raw metrics into actionable intelligence."
+    argos_help = "With SWAN Premium, your data comes alive through an operational insight engine with advanced analytics that reveals the why behind every number and turns raw metrics into actionable intelligence."
     
     # pro_on = st.toggle("Paid Subscription")
-    argos_on_toggle = st.sidebar.toggle("Activate Argos", help=argos_help)
+    argos_on_toggle = st.sidebar.toggle("Activate SWAN Premium", help=argos_help)
     
     if argos_on_toggle:
         pro_on = True

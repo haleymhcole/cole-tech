@@ -16,8 +16,8 @@ def render():
     # ---------------------------
     #     HERO SECTION
     # ---------------------------
-    st.title("Space Weather Insights")
-    st.subheader("Real-Time Monitoring, Smarter Forecasting")
+    st.title("Welcome to SWAN")
+    st.subheader("Advanced space weather & atmospheric environment insights now at your fingertips.")
     
     st.write("The SWAN (Space Weather and Atmospheric eNvironments) toolkit is an adaptive, user-driven space weather and atmospheric intelligence platform that integrates real-time and historical data to translate complex environmental conditions into clear, actionable operational insight.")
     
@@ -25,6 +25,8 @@ def render():
         "Track sunspots, geomagnetic activity, solar flux, and CME alerts...all in one place. "
         "Built for researchers, space operators, hobbyists, and the simply curious."
     )
+    
+    st.write("_Real-Time Monitoring, Smarter Forecasting_")
     
     # col1, col2 = st.columns(2)
     # with col1:

@@ -222,19 +222,19 @@ green_to_red = ['#006837', '#4bb05c', '#b7e075', '#feffbe', '#fdbf6f', '#ea5739'
 def get_Ap_env(Ap):
     # Describe the Earth's environment based on Ap index.
     if Ap < 15:
-        return "Quiet", green_to_red[0], "Very low activity, minimal impact."
+        return "Quiet", green_to_red[0], "Expect very low activity with minimal impact."
     elif Ap < 48:
-        return "Active", green_to_red[1], "Minor disturbances, potentially visible auroras at high latitudes."
+        return "Active", green_to_red[1], "Expect minor disturbances, potentially visible auroras at high latitudes."
     elif Ap < 132:
-        return "Moderate", green_to_red[2], "Noticeable geomagnetic changes, minor power grid fluctuations possible."
+        return "Moderate", green_to_red[2], "Expect noticeable geomagnetic changes with possible minor power grid fluctuations."
     elif Ap < 207:
-        return "Strong", green_to_red[3], "Significant geomagnetic storms, increased radio blackouts, potential for widespread power grid issues."
+        return "Strong", green_to_red[3], "Expect significant geomagnetic storms, increased radio blackouts, and possible widespread power grid issues."
     elif Ap < 294:
-        return "Severe", green_to_red[4], "Major storms, voltage control problems in power systems, transformer damage, potential for grid collapse."
+        return "Severe", green_to_red[4], "Expect major storms, voltage control problems in power systems, transformer damage, and possible grid collapse."
     elif Ap < 388:
-        return "Extreme", green_to_red[5], "Widespread voltage control issues, large power grid failures, protective systems struggle."
+        return "Extreme", green_to_red[5], "Expect widespread voltage control issues, large power grid failures, and protective systems struggle."
     else:
-        return "Extreme+", green_to_red[6], "Maximum severity, extreme grid instability, widespread blackouts, critical infrastructure risk."
+        return "Extreme+", green_to_red[6], "This is maximum severity. Expect extreme grid instability, widespread blackouts, and critical infrastructure risk."
 
 f107_colors = ['#006837', '#b7e075', '#fdbf6f', '#a50026']
 
@@ -245,7 +245,7 @@ def get_f107_env(f107):
     elif f107 < 100:
         return "Nominal", f107_colors[1], "Keep an eye out."
     elif f107 < 200:
-        return "Moderate", f107_colors[2], "Common during ascending/descending phases or solar maximum of a typical solar cycle."
+        return "Moderate", f107_colors[2], "This stage is common during ascending/descending phases or solar maximum of a typical solar cycle."
     else:
         return "Severe", f107_colors[3], "The sun is very active. Likely from large solar flares, producing extreme but temporary bursts of solar flux."
 
