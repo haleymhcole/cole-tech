@@ -40,7 +40,7 @@ def render():
 
     settings = get_settings()
 
-    st.subheader("Output Options")
+    
 
     # ---- Output Folder ----
     # output_folder = st.text_input(
@@ -53,7 +53,9 @@ def render():
     #     Path(output_folder).mkdir(parents=True, exist_ok=True)
     #     update_setting("output_folder", output_folder)
 
-
+    
+    # with st.form("settings_form"):
+    st.subheader("Output Options")
     # ---- Data Format ----
     data_format = st.selectbox(
         "Data Export Format",
